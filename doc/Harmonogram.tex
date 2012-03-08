@@ -1,0 +1,64 @@
+\documentclass[11pt,leqno]{article}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+%\usepackage{polski}
+\usepackage[T1]{fontenc}
+\frenchspacing
+\usepackage{indentfirst}
+\usepackage{verbatim}
+% Pakiet do tabelek
+\usepackage{multirow} 
+\usepackage{graphicx}
+\usepackage{pdflscape}
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}.}
+\renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}.}
+
+\begin{document}
+\begin{comment}
+%strona tytułowa
+\begin{center}
+\thispagestyle{empty}
+{\Large Studencka Pracownia Inżynierii Oprogramowania}\\[0.5cm]
+{\Large Zespół nr 8, IIUWr 2011/12}\\[2.5cm]
+
+{\large Marcin Januszkiewicz, Piotr Sobczyk}\\[0.5cm]
+{\huge Dokumentacja projektu \textbf{Tarantula}}\\[0.5cm]
+{\huge Harmonogram realizacji projektu}\\[0.5cm]
+\vfill
+{\large Wrocław, \today}
+
+\end{center}
+
+\newpage
+%\tableofcontents
+\end{comment}
+\newpage
+
+\begin{landscape}
+%{\small Tabela 1. Lista zadań wykonanych w ramach projektu ,,Tarantula''.}
+%\\[0.3cm]
+\begin{tabular}{|p{10cm}|l|l|}
+\hline
+\bf{Nazwa zadania} & \bf{Data rozpoczęcia} & \bf{Data zakończenia} \\ \hline
+Wyspecyfikowanie założeń ogólnych                         & 2012-03-07 & 2011-03-15 \\ \hline
+Opracowanie architektury programu                         & 2012-03-16 & 2011-03-23 \\ \hline
+Zaprojektowanie interfejsów serwera gier i portalu        & 2011-03-23 & 2012-03-30 \\ \hline
+Weryfikacja architektury programu                         & 2011-03-31 & 2012-04-03 \\ \hline
+Zaplanowanie testów serwera i portalu                     & 2011-04-03 & 2012-04-10 \\ \hline
+Opracowanie prototypu serwera gier oraz klientów          & 2012-04-10 & 2012-04-20 \\ \hline
+Wykonanie testów prototypów                               & 2012-04-20 & 2012-04-23 \\ \hline
+Opracowanie prototypu portalu                             & 2012-04-23 & 2012-04-30 \\ \hline
+Wykonanie testów portalu                                  & 2012-04-30 & 2012-05-07 \\ \hline
+Opracowanie pełnej wersji serwera gier i portalu          & 2012-05-07 & 2012-05-23 \\ \hline
+Wykonanie testów serwera gier i portalu                   & 2012-05-23 & 2012-05-26 \\ \hline
+Zredagowanie i opublikowanie dokumentacji                 & 2012-03-01 & 2012-05-27 \\ \hline
+\end{tabular}
+
+
+\end{landscape}
+
+
+
+\end{document}
+
