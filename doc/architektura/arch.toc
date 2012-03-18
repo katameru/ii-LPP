@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}Og\IeC {\'o}lny opis architektury}{3}
+\contentsline {subsection}{\numberline {1.1}Rozgrywka}{4}
+\contentsline {subsection}{\numberline {1.2}Tryby klienta}{4}
+\contentsline {paragraph}{Tryb menu.}{4}
+\contentsline {paragraph}{Tryb hosta.}{5}
+\contentsline {paragraph}{Tryb go\IeC {\'s}cia.}{6}
+\contentsline {subsection}{\numberline {1.3}W\IeC {\k a}tki serwera.}{6}
+\contentsline {subsection}{\numberline {1.4}Zadania element\IeC {\'o}w systemu}{6}
+\contentsline {paragraph}{Serwer www.}{6}
+\contentsline {paragraph}{Serwer dedykowany.}{6}
+\contentsline {paragraph}{Aplet.}{7}
+\contentsline {section}{\numberline {2}Dane przechowywane przez elementy systemu}{7}
+\contentsline {subsection}{\numberline {2.1}Klient}{7}
+\contentsline {subsection}{\numberline {2.2}Serwer}{8}
+\contentsline {section}{\numberline {3}Komunikacja mi\IeC {\k e}dzy serwerem i klientami}{8}
+\contentsline {subsection}{\numberline {3.1}Komunikaty z serwera do klienta}{8}
+\contentsline {subsection}{\numberline {3.2}Komunikaty od klienta do serwera}{9}
+\contentsline {subsection}{\numberline {3.3}Komunikacja go\IeC {\'s}\IeC {\'c}-gospodarz}{10}
+\contentsline {subsection}{\numberline {3.4}Zerwanie po\IeC {\l }\IeC {\k a}czenia}{10}
+\contentsline {section}{\numberline {4}Hierarchia klas}{10}
+\contentsline {section}{\numberline {5}S\IeC {\l }ownik}{10}
