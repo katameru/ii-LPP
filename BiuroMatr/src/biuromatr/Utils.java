@@ -2,7 +2,6 @@
 package biuromatr;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteBuffer;
@@ -14,7 +13,10 @@ import java.nio.charset.Charset;
  */
 public class Utils
 {
-    
+     /**
+     * Prints to standard output some information about datagram.
+     * @param dp datagram packet about which we want to show information.
+     */
     public static void showPacketInfo(DatagramPacket dp)
     {
         System.out.println("Message received from " + dp.getAddress());
@@ -26,6 +28,12 @@ public class Utils
         System.out.println("Content: " + content + "\n");        
     }
     
+    /**
+     * Reads data from datagram buffer, assuming that data is an UTF8 String.
+     * @param tab buffer of datagram.
+     * @param length length of data.
+     * @return String representing message packed in this datagram.
+     */
     public static String readData(byte[] tab, int length)
     {
         return Charset.forName("UTF8")
@@ -33,7 +41,7 @@ public class Utils
     }
     
     public static void send(DatagramSocket ds, AddrInfo addr, String mssg)
-            throws UnsupportedEncodingException, IOException
+            throws IOException
     {
         DatagramPacket dp = new DatagramPacket(new byte[0], 0);
         dp.setData(mssg.getBytes("UTF8"));
@@ -47,5 +55,25 @@ public class Utils
         System.out.println("Data length: " + dp.getData().length + "\n");
         
         ds.send(dp);
+    }
+    
+    public static String glue(String[] parts)
+    {
+        String res = "";
+        if (parts.length == 1) res = parts[0] + "|";
+        else {
+            for (int i = 0; i < parts.length; ++i)
+                res += parts[i] + (i == parts.length-1 ? "" : "|");
+        }
+        return res;
+    }
+    
+    public static String[] subarray(String[] arr, int beg, int end)
+    {
+        int l = end - beg;
+        String[] res = new String[l];
+        for (int i = 0; i < l; ++i)
+            res[i] = arr[i+beg];
+        return res;
     }
 }
