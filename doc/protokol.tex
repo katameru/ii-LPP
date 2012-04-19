@@ -12,47 +12,42 @@
 \tableofcontents
 
 \newpage
+\section{Opis protokołu}
+Komunikacja pomiędzy klientem a serwerem odywa się przez wymianę pakietów UDP z wiadomościami zawartymi w polu danych. W warstwie aplikacji protokół ma formę pytanie-odpowiedź, co zapewnia odporność na błędy sieci związane zstratą pakietów. Wiadomości przesyłane są w formacie JSON, co pozwala na wykorzystanie istniejących bibliotek do prostego kodowania i dekodowania informacji.
 
-Protokół ma formę zapytanie-odpowiedź, co wymusza dwojaką formę pakietów. Pakiety typu ``zapytanie'' zaczynają się identyfikatorem. Identyfikatory są potrzebne do potwierdzania odbioru. Każde wysyłane zapytanie ma formę id\textbar mssg\textbar args, gdzie id oznacza identyfikator, mssg oznacza właściwy komunikat, a args listę argumentów. Może być ona pusta; jeżeli argumentów jest więcej niż jeden, to są one odzielone znakiem '\textbar '. Po ostatnim argumencie nie ma tego znaku. Drugi typ pakietów to odpowiedzi. Mają formę \texttt{res}\textbar id\textbar mssg\textbar args, gdzie ciąg znaków \texttt{res} wskazuje, że pakiet jest odpowiedzią (od angielskiego response), id jest identyfikatorem wiadomości, na który odpowiadamy, mssg właściwym komunikatem, a args jego argumentami, o własnościach j.w. Odpowiedź może mieć formę \texttt{res}\textbar id, jeżeli istotne jest tylko potwierdzenie otrzymania pakietu, a nie jest konieczna żadna dodatkowa informacja.
-
-Poniżej opisujemy część mssg\textbar args. Podkreślona nazwa komunikatu oznacza, że jest on typu zapytanie, w przeciwnym razie jest to odpowiedź.
-
-\section{Co może wysłać klient do serwera?}
+\section{Lista możliwych komunikatów}
+\subsection{Komunikaty wysyłane przez klienta do serwera}
 \begin{description}
- \item[ \underline{newclient}\textbar myname] -- pakiet informujący o chęci przyłączenia się do serwera. Podany zostaje pożądany pseudonim.
- \item[ iamthere\textbar] -- odpowiedź na \textbf{youthere}. Jest oczywiście jej potwierdzeniem.
- \item[ \underline{newchannel}\textbar] -- pakiet będący prośbą o założenie nowego kanału do rozmowy.
- \item[ \underline{join}\textbar {name}] -- pakiet będący prośbą o przyłączenie do kanału użytkownika {name}.
- \item[ \underline{iamfree}\textbar] -- pakiet będący informacją, że klient nie znajduje się w kanale rozmowy, jest więc zarazem prośbą o przesłanie listy psuedonimów klientów, którzy otworzyli kanały rozmów.
- \item[ \underline{sendchannels}\textbar] -- pakiet będący prośbą o przesłanie listy psuedonimów klientów, którzy otworzyli kanały rozmów.
+ \item[newclient] -- komunikat informujący o chęci przyłączenia się do serwera. W treści komunikatu zawarty jest wybrany przez klienta identyfikator.
+ \item[echoresponse] -- komunikat wysyłany w odpowiedzi na \textbf{echorequest}.
+ \item[newchannel] -- komunikat będący prośbą o założenie nowego kanału do rozmowy. W treści komunikatu zawarta jest wybrana przez klienta nazwa nowego kanału.
+ \item[join] -- komunikat będący prośbą o przyłączenie do kanału. W treści komunikatu zawarta jest nazwa kanału do którego chce się przyłączyć klient.
+ \item[exit] -- komunikat będący prośbą o wypisanie klienta z kanału rozmowy.
+ \item[sendchannels] -- komunikat będący prośbą o przesłanie listy kanałów do których może dołączyć klient.
+ \item[holepunch] -- komunikat żądający od serwera przekazania otwartego kanału komunikacji do użytkownika, którego identyfikator jest zawarty w treści komunikatu.
 \end{description}
 
 
-\section{Co może wysłać serwer do klienta?}
+\subsection{Komunikaty wysyłane przez serwera do klienta}
 \begin{description}
- \item[ welcome\textbar yourname] -- odpowiedź na \textbf{newclient}. pakiet informujący o zaakceptowaniu połączenia, wraz z potwierdzeniem pseudonimu.
- \item[ invalidnick\textbar] -- odpowiedź na \textbf{newclient}, gdy żądany nick nie może być zaakceptowany (na przykład zawiera niedozwolone znaki).
- \item[ nickinuse\textbar] -- odpowiedź na \textbf{newclient}, gdy żądany nick jest już używany przez innego klienta.
- \item[ \underline{youthere}\textbar] -- pakiet będący zapytaniem czy klient nadal jest obecny.
- \item[ channellist\textbar list] -- odpowiedź na \textbf{iamfree} oraz \textbf{sendchannels}. Pakiet zawiera listę nicków klientów, którzy mają otwarte kanały do rozmowy. Nicki odzielone są znakiem '\textbar '.
- \item[ channelacc\textbar] -- odpowiedź na \textbf{newchannel}. Jest to pakiet będący potwierdzeniem, że serwer akceptuje założenie przez klienta nowego kanału rozmowy.
- \item[ channelfull\textbar] -- odpowiedź na \textbf{join}. Wysyłany gdy kanał do którego chciał dołączyć klient jest już zapełniony.
- \item[ nosuchchannel\textbar] -- odpowiedź na \textbf{join}. Wysyłany gdy klient zażądał dołącznia do nieznanego kanału.
- \item[ joinacc\textbar] -- odpowiedź na \textbf{join}. Oznacza, że prośba klienta o dołączenie do pewnego kanału została zaakceptowana. W osobnym pakiecie \textbf{address} wysyłany jest adres rozmówcy.
- \item[ \underline{address}\textbar nick\textbar addr] -- Pakiet zawiera pseudonim rozmówcy oraz jego adres w formie ip:port.
- \item[ youareinchannel\textbar {hostname}] -- odpowiedź na \textbf{join} oraz \textbf{newchannel}. Pakiet wysyłany gdy klient zażądał dołączenia lub otworzenia kanału, ale znajduje się już w jakimś. Dołączony jest nick klienta, który otworzył kanał.
- \item[ \underline{channelcanceled}\textbar hostname] -- pakiet jest informacją dla klienta, że powinien się rozłączyć (na przykład dlatego, że rozmówca opuścił kanał). Dodany jest nick osoby zakładającej kanał. 
- \item[ \underline{guestdisc}\textbar guestname] -- pakiet jest informacją dla hosta, że jego gość się rozłączył. Podany jest pseudonim gościa.
- \item[ idontknowyou\textbar] -- pakiet wysyłany jako odpowiedź do klienta, który przysłał żądanie inne niż\\ \textbf{newclient}, a nie znajduje się na liście adresów znanych serwerowi.
- \item[ invalidrequest\textbar req] -- pakiet wysyłany jako odpowiedź do klienta, który przysłał żądanie req, niezgodne z opisanym tu protokołem.
+ \item[welcome] -- odpowiedź na \textbf{newclient}. Komunikat ten oznacza, że serwer zaakceptował wybrany identyfikator.
+ \item[invalidnick] -- odpowiedź na \textbf{newclient}. Komunikat ten oznacza, że wybrany identyfikator nie został zaakceptowany. W treści komunikatu przesyłany jest numer błędu i jego opis.
+ \item[echorequest] -- komunikat żądający od klienta potwierdzenia sowjej obecności.
+ \item[channellist] -- odpowiedź na \textbf{sendchannels}. W treści komunikatu zawarta jest lista kanałów do których może dołączyć klient.
+ \item[channelaccepted] -- odpowiedź na \textbf{newchannel}. Komunikat ten oznacza, że serwer akceptuje założenie przez klienta nowego kanału rozmowy.
+  \item[channelrejected] -- odpowiedź na \textbf{newchannel}. Komunikat ten oznacza, że serwer odrzuca założenie przez klienta nowego kanału rozmowy. W treści komunikatu przesyłany jest numer błędu i jego opis.
+ \item[joinaccepted] -- odpowiedź na \textbf{join}. Komunikat ten oznacza, że prośba klienta o dołączenie do pewnego kanału została zaakceptowana.
+  \item[joinrejected] -- odpowiedź na \textbf{join}. Komunikate ten oznacza, że prośba klienta o dołączenie do pewnego kanału została odrzucona. W treści komunikatu przesyłany jest numer błędu i jego opis.
+ \item[adress] -- odpowiedź na \textbf{holepunch}. W treści komunikatu przesyłany jest identyfikator użytkownika wraz z jego adresem zewnętrznym i portem do komunikacji.
+ \item[channelcanceled] -- komunikat informujący klienta, że kanał w którym się znajduje przestał istnieć.
+  \item[userjoined] -- komunikat informujący klienta, że do kanału w którym się znajduje dołączył użytkownik. W treści komunikatu przesyłany jest identyfikator dołączającego użytkownika.
+ \item[userleft] -- komunikat informujący klienta, że kanał w którym się znajduje opuścił użytkownik. W treści komunikatu przesyłany jest identyfikator odchodzącego użytkownika.
+ \item[error] -- komunikat wysyłany gdy wystąpi bład inny niż te opisane wyżej. W treści komunikatu przesyłany jest numer błędu i jego opis.
 \end{description}
 
-\section{Co może wysłać klient do klienta?}
+\subsection{Komunikaty wysyłane prez klienta do klienta}
 \begin{description}
- \item[ \underline{holepunch}\textbar] - pakiet, którego celem jest aby lokalny rooter NAT zapmiętał, że wysyłaliśmy pakiet pod adres partnera. Wówczas zacznie dopuszczać jego pakiety. Poniewaź robią to obaj klienci, zatem po wysłaniu kilku pakietów zaczną oni je odbierać, wówczas należy wysłać odpowiedź \textbf{icanhearyou}. 
- \item[ icanhearyou\textbar] - odpowiedź na \textbf{holepunch}. Pakiet będący informacją, że dochodzą do nas pakiety partnera.
- \item[ \underline{chat}\textbar message] -- pakiet z wiadomością, {message} to jej treść.
- \item[ \underline{quit}\textbar] - pakiet informujący o opuszczeniu kanału.
+\item[genericdata]  -- 
 \end{description}
 
 
