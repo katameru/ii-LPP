@@ -10,27 +10,11 @@
 \usepackage{multirow} 
 \usepackage{graphicx}
 \usepackage{pdflscape}
-\renewcommand{\thesection}{\arabic{section}.}
-\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}.}
-\renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}.}
+\input{titlepage.sty}
 
 \begin{document}
-%strona tytułowa
-\begin{center}
-\thispagestyle{empty}
-{\Large Licencjacki Projekt Programistyczny}\\[0.5cm]
-{\Large Zespół nr ?, IIUWr 2011/12}\\[2.5cm]
+\newtitle{Harmonogram realizacji projektu}
 
-{\large Marcin Januszkiewicz, Grzegorz Łoś}\\[0.5cm]
-{\huge Dokumentacja projektu \textbf{Wtomigraj}}\\[0.5cm]
-{\huge Harmonogram realizacji projektu}\\[0.5cm]
-\vfill
-{\large Wrocław, \today}
-
-\end{center}
-
-\newpage
-%\tableofcontents
 \newpage
 
 \begin{landscape}

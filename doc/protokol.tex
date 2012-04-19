@@ -3,13 +3,15 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amsthm,amssymb}
 \usepackage[lmargin=2.7cm]{geometry}
-
-\author{Grzegorz Łoś}
-\title{\textbf{Biuro matrymonialne} -- Opis protokołu}
+\input{titlepage.sty}
 
 \begin{document}
 
-\maketitle
+%strona tytułowa
+\newtitle{Komunikacja klient-serwer}
+\tableofcontents
+
+\newpage
 
 Protokół ma formę zapytanie-odpowiedź, co wymusza dwojaką formę pakietów. Pakiety typu ``zapytanie'' zaczynają się identyfikatorem. Identyfikatory są potrzebne do potwierdzania odbioru. Każde wysyłane zapytanie ma formę id\textbar mssg\textbar args, gdzie id oznacza identyfikator, mssg oznacza właściwy komunikat, a args listę argumentów. Może być ona pusta; jeżeli argumentów jest więcej niż jeden, to są one odzielone znakiem '\textbar '. Po ostatnim argumencie nie ma tego znaku. Drugi typ pakietów to odpowiedzi. Mają formę \texttt{res}\textbar id\textbar mssg\textbar args, gdzie ciąg znaków \texttt{res} wskazuje, że pakiet jest odpowiedzią (od angielskiego response), id jest identyfikatorem wiadomości, na który odpowiadamy, mssg właściwym komunikatem, a args jego argumentami, o własnościach j.w. Odpowiedź może mieć formę \texttt{res}\textbar id, jeżeli istotne jest tylko potwierdzenie otrzymania pakietu, a nie jest konieczna żadna dodatkowa informacja.
 
