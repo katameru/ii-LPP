@@ -1,6 +1,11 @@
 
 package biuromatr;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Set;
+import java.util.TreeSet;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -18,7 +23,8 @@ import static biuromatr.Utils.*;
 
 
 /**
- * \"Biuro matrymonialne\" is an UDP server arranges connection between clients.
+ * \"Biuro matrymonialne\" is an UDP server which 
+ * arranges connection between clients.
  * 
  * @author grzes
  */
@@ -77,15 +83,10 @@ public class BiuroMatr implements Runnable
             @Override
             public void propertyChange(PropertyChangeEvent evt)
             {
-                if ("datagram".equals(evt.getPropertyName()))
+                if ("request".equals(evt.getPropertyName()))
                 {
                     DatagramInfo dinfo = (DatagramInfo) evt.getNewValue();
-                    if (!dinfo.isResponse())
-                    {
-                        //received packet is a request
-                        Handler h = null;
-                        handleRequest(dinfo);
-                    }
+                    handleRequest(dinfo);
                 }
             }
         };
@@ -110,7 +111,7 @@ public class BiuroMatr implements Runnable
         TimerTask task1 = new TimerTask() {
             @Override
             public void run() {
-                sendYouThere();
+                sendEchoRequest();
             }
         };
         TimerTask task2 = new TimerTask() {
@@ -127,7 +128,7 @@ public class BiuroMatr implements Runnable
     /**
      * Method sends to all clients youthere packet.
      */
-    private void sendYouThere()
+    private void sendEchoRequest()
     {
         for (final ClientInfo ci: addrs.values())
         {
@@ -136,7 +137,8 @@ public class BiuroMatr implements Runnable
                 public void run()
                 {           
                     try {
-                        ci.toClient.send("youthere|", resHandler);
+                        ci.toClient.send( Utils.makeJSON("echorequest"),
+                                          resHandler );
                     } catch (ConnectionException ex) {
                         System.out.println("Setting dead");
                         ci.dead = true;
@@ -148,7 +150,7 @@ public class BiuroMatr implements Runnable
     
     /**
      * Method iterates trough all clients and checks if they keep answering to
-     * youthere.
+     * echorequest.
      */
     private void deleteDeadClients()
     {
@@ -178,7 +180,7 @@ public class BiuroMatr implements Runnable
     
         
     /**
-     * Analyzes data in received packet.
+     * Analyzes data from received packet in a new thread.
      * @param dp received packet.
      */
     private void handleRequest(final DatagramInfo dinfo)
@@ -189,10 +191,10 @@ public class BiuroMatr implements Runnable
             {
                 try {
                     if ( addrs.get(dinfo.getSender()) == null &&
-                         !"newclient".equals(dinfo.getMssg()[0]) )
+                         !"newclient".equals(dinfo.getType()) )
                         handleUnknownClient(dinfo);
                     else {
-                        Handler h = handlers.get(dinfo.getMssg()[0]);
+                        Handler h = handlers.get(dinfo.getType());
                         if (h == null) handleInvalidRequest(dinfo);
                         else h.handle(dinfo);
                     }
@@ -211,7 +213,7 @@ public class BiuroMatr implements Runnable
             @Override
             public void handle(DatagramInfo resp)
             {
-                String com = resp.getMssg()[0];
+                String com = resp.getType();
                 if (com.isEmpty()) return;
                 Handler h = handlers.get(com);
                 if (h != null) h.handle(resp);
@@ -240,16 +242,10 @@ public class BiuroMatr implements Runnable
             @Override
             public void handle(DatagramInfo dinfo)
             {
-                try
-                {
-                    handleIAmThere(dinfo);
-                } catch (IOException ex)
-                {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                handleEmptyResponse(dinfo);
             }
         };
-        handlers.put("iamthere", handler);
+        handlers.put("emptyresponse", handler);
         
         handler = new Handler() {
             @Override
@@ -272,14 +268,14 @@ public class BiuroMatr implements Runnable
             {
                 try
                 {
-                    handleIAmFree(dinfo);
+                    handleExit(dinfo);
                 } catch (IOException ex)
                 {
                     Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
-        handlers.put("iamfree", handler);
+        handlers.put("exit", handler);
         
         handler = new Handler() {
             @Override
@@ -322,8 +318,13 @@ public class BiuroMatr implements Runnable
      */
     private void handleUnknownClient(DatagramInfo dinfo) throws IOException
     {
-        String pre = "res|" + dinfo.getId() + "|";
-        send(ds, dinfo.getSender(), pre + "idontknowyou|");
+        JSONObject res = makeRes("error", dinfo.getId());
+        try {
+            res.put("desc", "You didn't register.");
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        send(ds, dinfo.getSender(), res);
     }    
     
     /**
@@ -336,8 +337,13 @@ public class BiuroMatr implements Runnable
      */
     private void handleInvalidRequest(DatagramInfo dinfo) throws IOException
     {
-        String pre = "res|" + dinfo.getId() + "|";
-        send(ds, dinfo.getSender(), pre + "invalidrequest|");
+        JSONObject res = makeRes("error", dinfo.getId());
+        try {
+            res.put("desc", "Invalid request.");
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        send(ds, dinfo.getSender(), res);
     }
 
     /**
@@ -349,19 +355,22 @@ public class BiuroMatr implements Runnable
      */
     private void handleNewClient(DatagramInfo dinfo) throws IOException
     {
-        String pre = "res|" + dinfo.getId() + "|";
-        String[] tab = dinfo.getMssg();
-        //tab[0] - newclient, and tab[1] is nickname
-        String nick = "";
+        JSONObject res = emptyRes(dinfo.getId());
+        String nick = null;
         try {
-            nick = tab[1];
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            //we doesn't have to do anything, nick stays an empty string, so it
-            //will be rejected by next if statement. [it is impossible anyway]
+            nick = dinfo.getJson().getString("nick");
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (!isNickOK(nick))
         {
-            send(ds, dinfo.getSender(), pre + "invalidnick|");
+            try {
+                res.put("type", "invalidnick");
+                res.put("desc", "Given nick is invalid.");                
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, dinfo.getSender(), res);
             return ;
         }
         
@@ -373,127 +382,266 @@ public class BiuroMatr implements Runnable
                 clients.put(nick, newCi);
                 addrs.put(dinfo.getSender(), newCi);
             }
-            send(ds, dinfo.getSender(), pre  + "welcome|" + nick);
+            try {
+                res.put("type", "welcome");
+                res.put("nick", nick);
+                res.put("channels", channelNames);
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, dinfo.getSender(), res);
         }
         else if (ci.ai.equals(dinfo.getSender()))
         {   //the same client sent to us request for the same nick
             //it may mean that our confirmation packet had been lost
-            send(ds, dinfo.getSender(), pre + "welcome|" + nick);
+            try {
+                res.put("type", "welcome");
+                res.put("nick", nick);
+                res.put("channels", channelNames);
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, dinfo.getSender(), res);
         }
         else
         {   //nick was taken by someone else
-            send(ds, dinfo.getSender(), pre + "nickinuse|");
+            try {
+                res.put("type", "invalidnick");
+                res.put("desc", "Nick is already taken.");
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, dinfo.getSender(), res);
         }            
     }
     
     /**
-     * Method invoked when we get packet confirming presence.
+     * Method invoked when we get packet which doesn't need extra data
+     * in answer.
      * @param mssg message sent by client.
      * @param ai clients address.
      * @throws UnsupportedEncodingException
      * @throws IOException 
      */
-    private void handleIAmThere(DatagramInfo dinfo) throws IOException
-    {   //we don't do anything, client would be considered dead if he
-        //didn't respond.
+    private void handleEmptyResponse(DatagramInfo dinfo)
+    {   //we don't do anything, the only important thing is that request
+        //has been delivered
     }    
     
     private void handleNewChannel(DatagramInfo dinfo) throws IOException 
     {
-        String pre = "res|" + dinfo.getId() + "|";
+        JSONObject res = emptyRes(dinfo.getId());
         ClientInfo ci = addrs.get(dinfo.getSender());
         String nick = ci.nick;
         Channel ch = channels.get(nick);
         if (ch != null)
         {   //client already is in a channel. It may be duplicated datagram
             //or some strange error.
-            send(ds, dinfo.getSender(),
-                    pre + "youareinchannel|" + ch.guest.nick);
+            try {              
+                res.put("type", "channelrejected");
+                res.put("desc", "You are in channel already.");
+                res.put("name", ch.name);
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+            send(ds, dinfo.getSender(), res);
             return ;
         }
-        channels.put(nick, new Channel(ci));
-        send(ds, dinfo.getSender(), pre + "channelacc|");
-        updateChannelString();
+        
+        String chName = null;
+        try {
+            chName = dinfo.getJson().getString("name");
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        if (!isNickOK(chName))
+        {
+            try {
+                res.put("type", "channelrejected");
+                res.put("desc", "Given channel name is invalid.");
+                res.put("name", chName); 
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }               
+            send(ds, dinfo.getSender(), res);
+            return ;
+        }
+        if (getChannelByName(chName) != null)
+        {
+            try {
+                res.put("type", "channelrejected");
+                res.put("desc", "Given channel name is already taken.");
+                res.put("name", chName);   
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }             
+            send(ds, dinfo.getSender(), res);
+            return ;
+        }
+        
+        channels.put(nick, new Channel(ci, chName));
+        try {
+            res.put("type", "channelaccepted");
+            res.put("name", chName);   
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        send(ds, dinfo.getSender(), res);
+        channelNames.add(chName);
     }
 
-    private void handleIAmFree(DatagramInfo dinfo) throws IOException
+    private void handleExit(DatagramInfo dinfo) throws IOException
     {
-        String pre = "res|" + dinfo.getId() + "|";
+        JSONObject res = makeRes("exitaccepted", dinfo.getId());
         ClientInfo ci = addrs.get(dinfo.getSender());
         leaveChannel(ci.nick); //if client wasn't in channel it has no effect.
-        send(ds, dinfo.getSender(), pre + "channellist" + channelString);
+        try {
+            res.put("channels", channelNames);
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        send(ds, dinfo.getSender(), res);
     }
        
     private void handleSendChannels(DatagramInfo dinfo) throws IOException
     {        
-        String pre = "res|" + dinfo.getId() + "|";
-        send(ds, dinfo.getSender(), pre + "channellist" + channelString);
+        JSONObject res = makeRes("channellist", dinfo.getId());
+        try {
+            res.put("channels", channelNames);
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        send(ds, dinfo.getSender(), res);
     }
     
     private void handleJoin(DatagramInfo dinfo) throws IOException
     {
-        String pre = "res|" + dinfo.getId() + "|";
-        String hostnick = "";
+        JSONObject res = emptyRes(dinfo.getId());
+        String name = "";
         try {
-            hostnick = dinfo.getMssg()[1];
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            send(ds, dinfo.getSender(), pre + "invalidrequest|");
+            name = dinfo.getJson().getString("name");
+        } catch (JSONException ex) {
+            try {
+                res.put("type", "invalidrequest");
+                res.put("desc", "Channel name is invalid.");
+            } catch (JSONException ex1) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            send(ds, dinfo.getSender(), res);
             return ;
         }
-        Channel ch = channels.get(hostnick);
+        
+        Channel ch = getChannelByName(name);
         ClientInfo guest = addrs.get(dinfo.getSender());
         if (channels.get(guest.nick) != null)
         {
-            if (ch != null && guest.nick.equals(ch.guest.nick))
-            {  //it is duplicated request to join this channel. 
-                send(ds, guest.ai, pre + "joinacc|");
+            //client is already in a channel        
+            try {
+                if (ch != null && guest.nick.equals(ch.guest.nick))
+                {  //it is duplicated request to join this channel. 
+                    res.put("type", "joinaccepted");
+                    res.put("name", name);
+                    send(ds, guest.ai, res);
+                }
+                else
+                {
+                    res.put("type", "joinrejected");
+                    res.put("desc", "You are already in a channel.");
+                    res.put("name", channels.get(guest.nick));
+                    send(ds, guest.ai, res);     
+                }        
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);            
             }
-            else send(ds, guest.ai,
-                    pre + "youareinchannel|" + channels.get(guest.nick));            
+            return ;
         }
-        else if (ch == null) send(ds, guest.ai, pre + "nosuchchannel|");
+        else if (ch == null) 
+        {
+            try {
+                res.put("type", "joinrejected");
+                res.put("desc", "No such channel.");
+                res.put("name", name);
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, guest.ai, res);
+        }
         else if (ch.isFull())
         {
             //we already know that dinfo sender is not guest of channel ch
-            send(ds, dinfo.getSender(), pre + "channelfull|");
+            try {
+                res.put("type", "joinrejected");
+                res.put("desc", "Channel is full.");
+                res.put("name", name);
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, guest.ai, res);
         }
-        else {
-            send(ds, guest.ai, pre + "joinacc|");
+        else
+        {
+            try {
+                res.put("type", "joinaccepted");
+                res.put("name", name);
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, guest.ai, res);            
             ch.setGuest(guest);
             channels.put(guest.nick, ch);
-            updateChannelString();
             sendAddr(ch);
         }
     } 
     
+    /**
+     * Sends each others addresses to host and client of given channel.
+     * @param ch channel.
+     */
     private void sendAddr(final Channel ch)
     {
-        ClientInfo guest = ch.guest,
-                   host  = ch.host;
+        final ClientInfo guest = ch.guest,
+                         host  = ch.host;
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run()
+            {
+                sendAddr(host, guest);
+            }
+        }).start();
+        
+        sendAddr(guest, host);
+    }
+    
+    /**
+     * Sends address of snd to fst.
+     * @param fst Client who will receive address of snd.
+     * @param snd Client who's address is being sent.
+     */
+    private void sendAddr(ClientInfo fst, ClientInfo snd)
+    {
+        JSONObject json = makeJSON("address");
         try {
-            host.toClient.send("address|" + guest.nick + "|" + guest.ai,
-                    resHandler);
+            json.put("nick", snd.nick);
+            json.put("address", snd.ai.toString());
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            fst.toClient.send(json, resHandler);
         } catch (ConnectionException ex) {
-            //host of channel could not be reached
-            host.dead = true;
+            //fst could not be reached
+            fst.dead = true;
             try {
-                leaveChannel(host.nick);
+                leaveChannel(fst.nick);
             } catch (IOException ex1) {
                 Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex1);
             }
             return ;
-        }
-        
-        try {
-            guest.toClient.send("address|" + host.nick + "|" + host.ai, resHandler);
-        } catch (ConnectionException ex) {
-            guest.dead = true;
-            try {
-                leaveChannel(guest.nick);
-            } catch (IOException ex1) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-        }
+        }        
     }
     
     private void leaveChannel(String nick) throws IOException
@@ -509,11 +657,16 @@ public class BiuroMatr implements Runnable
                 channels.remove(nick);
                 ch.setGuest(null); //host will wait for new iterlocutor
                 try {
-                    ch.host.toClient.send("guestdisc|" + nick, resHandler);
+                    JSONObject json = makeJSON("userleft");
+                    try {
+                        json.put("nick", nick);
+                    } catch (JSONException ex) {
+                        Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    ch.host.toClient.send(json, resHandler);
                 } catch (ConnectionException ex) {
                     Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                updateChannelString();
             } 
         }        
     }
@@ -521,16 +674,28 @@ public class BiuroMatr implements Runnable
     private void closeChannel(Channel ch) throws IOException
     {  
         channels.remove(ch.host.nick);
+        channelNames.remove(ch.name);
         if (ch.guest != null)
         {
             channels.remove(ch.guest.nick);
             try {
-                ch.guest.toClient.send("channelcanceled|" + ch.host.nick, resHandler);
+                JSONObject json = makeJSON("channelcanceled");
+                ch.guest.toClient.send(json, resHandler);
             } catch (ConnectionException ex) {
                 Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        updateChannelString();
+    }
+    
+    private Channel getChannelByName(String name)
+    {
+        for (Channel ch: channels.values())
+        {
+            if (ch.name.equals(name)) {
+                return ch;
+            }
+        }
+        return null;
     }
 
     private boolean isNickOK(String nick)
@@ -538,20 +703,6 @@ public class BiuroMatr implements Runnable
         return nick != null && !nick.isEmpty() && nick.length() < 32;
     }
        
-    private void updateChannelString()
-    {
-        /* TODO we should append one channel only once. Currently it is
-         * accidentally correct, because channel is designated for two clients,
-         * should be changed.
-         */
-        if (channels.isEmpty()) channelString = "|";
-        else {
-            channelString = "";
-            for (Channel ch: channels.values())
-                if (!ch.isFull()) channelString += "|" + ch.host.nick;
-        }
-    }
-        
     public void close()
     {
         receiver.close();
@@ -588,7 +739,7 @@ public class BiuroMatr implements Runnable
      * String containing nicks of clients who opened chat channels. It is
      * updated every time when any change happens.
      */
-    private String channelString = "|";
+    private Set<String> channelNames = new TreeSet<String>();
     
     /**
      * Map containing nicks of clients and channels in which they are.
@@ -621,9 +772,10 @@ class ClientInfo
 
 class Channel
 {
-    Channel(ClientInfo host)
+    Channel(ClientInfo host, String name)
     {
         this.host = host;
+        this.name = name;
     }
     
     boolean isFull()
@@ -637,4 +789,5 @@ class Channel
     }
     
     ClientInfo host, guest = null;
+    String name; 
 }

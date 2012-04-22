@@ -58,7 +58,9 @@ public class Receiver
                 DatagramInfo dinfo;
                 try {
                     dinfo = new DatagramInfo(dp);
-                    pcs.firePropertyChange("datagram", null, dinfo);
+                    if (dinfo.isResponse())
+                        pcs.firePropertyChange("response", null, dinfo);
+                    else pcs.firePropertyChange("request", null, dinfo);
                 } catch (InvalidDataException ex) {
                     System.err.println("An invalid datagram received.");
                     showPacketInfo(dp);

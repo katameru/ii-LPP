@@ -13,6 +13,8 @@ import java.net.InetAddress;
 import static biuromatr.Utils.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Class designated for communication with server and other users.
@@ -40,11 +42,10 @@ public class Client
             @Override
             public void propertyChange(PropertyChangeEvent evt)
             {
-                if ("datagram".equals(evt.getPropertyName()))
+                if ("request".equals(evt.getPropertyName()))
                 {
                     DatagramInfo dinfo = (DatagramInfo) evt.getNewValue();
-                    if (!dinfo.isResponse()) //received packet is a request    
-                        handleRequest(dinfo);                    
+                    handleRequest(dinfo);                    
                 }         
             }
         };
@@ -64,12 +65,12 @@ public class Client
             @Override
             public void handle(DatagramInfo resp)
             {
-                if (resp.getMssg()[0].isEmpty())
+                if (resp.getType().isEmpty())
                     return ;
-                Handler h = handlers.get(resp.getMssg()[0]);
+                Handler h = handlers.get(resp.getType());
                 if (h != null) h.handle(resp);
                 else System.err.println("I don't know what to do"
-                        + " with response " + resp.getMssg()[0]);
+                        + " with response " + resp.getType());
             }
         };
         
@@ -86,28 +87,19 @@ public class Client
             @Override
             public void handle(DatagramInfo dinfo)
             {
-                handleInvalidNick();
+                handleInvalidNick(dinfo);
             }
         };
-        handlers.put("invalidnick", handler);     
+        handlers.put("invalidnick", handler);            
         
         handler = new Handler() {
             @Override
             public void handle(DatagramInfo dinfo)
             {
-                handleNickInUse(dinfo);
+                handleEchoRequest(dinfo);
             }
         };        
-        handlers.put("nickinuse", handler);           
-        
-        handler = new Handler() {
-            @Override
-            public void handle(DatagramInfo dinfo)
-            {
-                handleYouThere(dinfo);
-            }
-        };        
-        handlers.put("youthere", handler);   
+        handlers.put("echorequest", handler);   
         
         handler = new Handler() {
             @Override
@@ -117,42 +109,51 @@ public class Client
             }
         };
         handlers.put("channellist", handler);  
+                
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleExitAccpeted(dinfo);
+            }
+        };
+        handlers.put("exitaccepted", handler);        
+      
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleChannelAccepted(dinfo);
+            }
+        };
+        handlers.put("channelaccepted", handler); 
+  
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleChannelRejected(dinfo);
+            }
+        };
+        handlers.put("channelrejected", handler);        
         
         handler = new Handler() {
             @Override
             public void handle(DatagramInfo dinfo)
             {
-                handleChannelAcc(dinfo);
+                handleJoinAccepted(dinfo);
             }
         };
-        handlers.put("channelacc", handler); 
-        
+        handlers.put("joinaccepted", handler);     
+                     
         handler = new Handler() {
             @Override
             public void handle(DatagramInfo dinfo)
             {
-                handleChannelFull(dinfo);
+                handleJoinRejected(dinfo);
             }
         };
-        handlers.put("channelfull", handler);        
-        
-        handler = new Handler() {
-            @Override
-            public void handle(DatagramInfo dinfo)
-            {
-                handleNoSuchChannel(dinfo);
-            }
-        };
-        handlers.put("nosuchchannel", handler);        
-        
-        handler = new Handler() {
-            @Override
-            public void handle(DatagramInfo dinfo)
-            {
-                handleJoinAcc(dinfo);
-            }
-        };
-        handlers.put("joinacc", handler);     
+        handlers.put("joinrejected", handler);     
               
         handler = new Handler() {
             @Override
@@ -162,16 +163,7 @@ public class Client
             }
         };
         handlers.put("address", handler);     
-        
-        handler = new Handler() {
-            @Override
-            public void handle(DatagramInfo dinfo)
-            {
-                handleYouAreInChannel(dinfo);
-            }
-        };
-        handlers.put("youareinchannel", handler);     
-        
+       
         handler = new Handler() {
             @Override
             public void handle(DatagramInfo dinfo)
@@ -185,28 +177,19 @@ public class Client
             @Override
             public void handle(DatagramInfo dinfo)
             {
-                handleGuestDisc(dinfo);
+                handleUserLeft(dinfo);
             }
         };
-        handlers.put("guestdisc", handler);     
+        handlers.put("userleft", handler);     
         
         handler = new Handler() {
             @Override
             public void handle(DatagramInfo dinfo)
             {
-                handleIDontKnowYou(dinfo);
+                handleError(dinfo);
             }
         };
-        handlers.put("idontknowyou", handler);
-                
-        handler = new Handler() {
-            @Override
-            public void handle(DatagramInfo dinfo)
-            {
-                handleInvalidRequest(dinfo);
-            }
-        };
-        handlers.put("invalidrequest", handler);
+        handlers.put("error", handler);
         
         handler = new Handler() {
             @Override
@@ -242,7 +225,16 @@ public class Client
                 handleQuit(dinfo);
             }
         };
-        handlers.put("quit", handler);
+        handlers.put("quit", handler);     
+        
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleEmptyResponse(dinfo);
+            }
+        };
+        handlers.put("emptyresponse", handler);
     }
     
     private void handleRequest(final DatagramInfo dinfo)
@@ -256,11 +248,11 @@ public class Client
                 if ( dinfo.getSender().equals(clientAddr) ||
                      dinfo.getSender().equals(serverAddr) )
                 {
-                    h = handlers.get(dinfo.getMssg()[0]);
+                    h = handlers.get(dinfo.getType());
                     if (h != null) h.handle(dinfo);
                     else {
                         System.err.println("AAAI don't know what to do "
-                            + "with message " + dinfo.getMssg()[0]);
+                            + "with message " + dinfo.getType());
                     }
                 }                  
             }
@@ -269,57 +261,95 @@ public class Client
     
     private void handleWelcome(DatagramInfo dinfo)
     {
-        myNick = dinfo.getMssg()[1];
+        try {
+            myNick = dinfo.getJson().getString("nick");
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
         resetInterlocutor();
         pcs.firePropertyChange("state", State.DISC, State.MENU);
         state = State.MENU;
+        handleChannelList(dinfo);
+    }
+    
+    private void handleInvalidNick(DatagramInfo dinfo)
+    {
+        String ans = "";
         try {
-            toServer.send("sendchannels|", resHandler);
-        } catch (ConnectionException ex) {
+            ans = dinfo.getJson().getString("desc");
+        } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
+        pcs.firePropertyChange("problem", "", "Nick was not accepted."
+                + "Server answered: \"" + ans + "\".");
     }
     
-    private void handleInvalidNick()
+    private void handleEchoRequest(DatagramInfo dinfo)
     {
-        pcs.firePropertyChange("problem", "", "Given nick is invalid.");
-    }
-    
-    private void handleNickInUse(DatagramInfo dinfo)
-    {
-        pcs.firePropertyChange("problem", "", "Given nick is already used.");
-    }
-    
-    private void handleYouThere(DatagramInfo dinfo)
-    {
-        confirm(dinfo, "iamthere|");
+        confirm(dinfo);
     }
     
     private void handleChannelList(DatagramInfo dinfo)
     {
-        String[] channels = subarray(dinfo.getMssg(),
-                1, dinfo.getMssg().length);
+        String[] channels = new String[0];
+        try {
+            channels = getChannels(dinfo.getJson().getJSONArray("channels"));
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
         pcs.firePropertyChange("channellist", null, channels);
     }
+        
+    private void handleExitAccpeted(DatagramInfo dinfo)
+    {
+        handleChannelList(dinfo);
+    }
     
-    private void handleChannelAcc(DatagramInfo dinfo)
+    private void handleChannelAccepted(DatagramInfo dinfo)
     {
         state = State.CHAT;
         iamhost = true;
         pcs.firePropertyChange("state", State.MENU, State.CHAT);
     }
     
-    private void handleChannelFull(DatagramInfo dinfo)
+    private void handleChannelRejected(DatagramInfo dinfo)
     {
-        pcs.firePropertyChange("problem", "", "Chosen channel if full.");
+        String ans = "";
+        try {
+            ans = dinfo.getJson().getString("desc");
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        pcs.firePropertyChange("problem", "", "Channel was not accepted."
+                + "Server answered: \"" + ans + "\".");
     }
-    
-    private void handleNoSuchChannel(DatagramInfo dinfo)
+        
+    private void handleJoinRejected(DatagramInfo dinfo)
     {
-        pcs.firePropertyChange("problem", "", "There is no such channel.");
+        String ans = "";
+        try {
+            ans = dinfo.getJson().getString("desc");
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        pcs.firePropertyChange("problem", "", "Couldn't join."
+                + "Server answered: \"" + ans + "\".");
     }
+        
+    /**
+     * Method invoked when we get packet which doesn't need extra data
+     * in answer.
+     * @param mssg message sent by client.
+     * @param ai clients address.
+     * @throws UnsupportedEncodingException
+     * @throws IOException 
+     */
+    private void handleEmptyResponse(DatagramInfo dinfo)
+    {   //we don't do anything, the only important thing is that request
+        //has been delivered
+    }    
     
-    private void handleJoinAcc(DatagramInfo dinfo)
+    private void handleJoinAccepted(DatagramInfo dinfo)
     {
         state = State.CHAT;
         iamhost = false;
@@ -332,21 +362,15 @@ public class Client
         if (clientAddr == null)
         {            
             try {
-                interlocutor = dinfo.getMssg()[1];
-                clientAddr = AddrInfo.fromString(dinfo.getMssg()[2]);
+                interlocutor = dinfo.getJson().getString("nick");
+                clientAddr = AddrInfo.fromString(dinfo.getJson().getString("address"));
                 toClient = new ReqSender(ds, receiver, clientAddr);
-                toClient.send("holepunch|", resHandler);
+                JSONObject json = makeJSON("holepunch");
+                toClient.send(json, resHandler);
             } catch (Exception ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-    
-    private void handleYouAreInChannel(DatagramInfo dinfo)
-    {
-        letKnowYouAreFree();
-        pcs.firePropertyChange("problem", "", "Must return to menu mode"
-                + " due to error in communication with server.");
     }
     
     private void handleChannelCanceled(DatagramInfo dinfo)
@@ -356,7 +380,7 @@ public class Client
         pcs.firePropertyChange("problem", "", "Host left.");
     }
     
-    private void handleGuestDisc(DatagramInfo dinfo)
+    private void handleUserLeft(DatagramInfo dinfo)
     {
         confirm(dinfo);
         if (state == State.CHAT && interlocutor != null)
@@ -365,22 +389,16 @@ public class Client
         }
     }
     
-    private void handleIDontKnowYou(DatagramInfo dinfo)
+    private void handleError(DatagramInfo dinfo)
     {
         pcs.firePropertyChange("state", state, State.DISC);
         state = State.DISC;
         pcs.firePropertyChange("problem", "", "Connecion rejected by server.");        
     }
     
-    private void handleInvalidRequest(DatagramInfo dinfo)
-    {
-        pcs.firePropertyChange("problem", "", "Host states that message \""
-                + glue(dinfo.getMssg()) + "\" is invalid.");
-    }
-    
     private void handleHolePunch(DatagramInfo dinfo)
     {
-        confirm(dinfo, "icanhearyou|");
+        confirm(dinfo, "icanhearyou");
     }
     
     private void handleICanHearYou(DatagramInfo dinfo)
@@ -395,7 +413,13 @@ public class Client
     private void handleChat(DatagramInfo dinfo)
     {
         confirm(dinfo);
-        pcs.firePropertyChange("chatmssg", null, dinfo.getMssg()[1]);        
+        String mssg = "";
+        try {
+            mssg = dinfo.getJson().getString("mssg");
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        pcs.firePropertyChange("chatmssg", null, mssg);        
     }
     
     private void handleQuit(DatagramInfo dinfo)
@@ -414,16 +438,18 @@ public class Client
     private void confirm(DatagramInfo dinfo)
     {
         try {
-            send(ds, dinfo.getSender(), "res|" + dinfo.getId() + "|");
+            JSONObject res = emptyRes(dinfo.getId());
+            send(ds, dinfo.getSender(), res);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    private void confirm(DatagramInfo dinfo, String desc)
+    private void confirm(DatagramInfo dinfo, String type)
     {
         try {
-            send(ds, dinfo.getSender(), "res|" + dinfo.getId() + "|" + desc);
+            JSONObject res = makeRes(type, dinfo.getId());
+            send(ds, dinfo.getSender(), res);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -443,8 +469,9 @@ public class Client
         if (state == State.CHAT)
         {
             try {
-                toServer.send("iamfree|", resHandler);
-            } catch (ConnectionException ex) {
+                JSONObject json = makeJSON("exit");
+                toServer.send(json, resHandler);
+            } catch (Exception ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }   
             resetInterlocutor();   
@@ -461,7 +488,13 @@ public class Client
     public void start(String nick) throws ConnectionException
     {     
         if (state != State.DISC) return ;
-        toServer.send("newclient|" + nick, resHandler);
+        JSONObject json = makeJSON("newclient");
+        try {
+            json.put("nick", nick);
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        toServer.send(json, resHandler);
     }
     
     public void close()
@@ -475,26 +508,45 @@ public class Client
     public void startChannel() throws ConnectionException
     {
         if (state != State.MENU) return ;
-        toServer.send("newchannel|", resHandler);
+        JSONObject json = makeJSON("newchannel");
+        try {
+            json.put("name", myNick);
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        toServer.send(json, resHandler);
     }
     
-    public void join(String hostname) throws ConnectionException
+    public void join(String channelName) throws ConnectionException
     {
         if (state != State.MENU) return ;
-        toServer.send("join|" + hostname, resHandler);          
+        JSONObject json = makeJSON("join");
+        try {
+            json.put("name", channelName);
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        toServer.send(json, resHandler);          
     }
     
     public void refreshChannels() throws ConnectionException
     {
         if (state != State.MENU) return ;
-        toServer.send("sendchannels|", resHandler);      
+        JSONObject json = makeJSON("sendchannels");
+        toServer.send(json, resHandler);      
     }
     
     public void sendChatMssg(String mssg) throws ConnectionException
     {
         if (!clientConnected)
             throw new ConnectionException("You don't have connection to any client.");
-        toClient.send("chat|" + mssg, resHandler);
+        JSONObject json = makeJSON("chat");
+        try {
+            json.put("mssg", mssg);
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        toClient.send(json, resHandler);
     }
     
     public void leaveChat()
@@ -502,7 +554,8 @@ public class Client
         if (clientConnected)
         {
             try {
-                toClient.send("quit|", resHandler);
+                JSONObject json = makeJSON("quit");
+                toClient.send(json, resHandler);
             } catch (ConnectionException ex) {
                //we don't do anything, he is dead but we are leaving anyway
             }

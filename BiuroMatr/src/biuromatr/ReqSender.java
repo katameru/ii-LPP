@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * ReqSender is derivation for Request Sender.
@@ -27,18 +29,15 @@ public class ReqSender implements PropertyChangeListener
     @Override
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if ("datagram".equals(evt.getPropertyName()))
+        if ("response".equals(evt.getPropertyName()))
         {
             DatagramInfo dinfo = (DatagramInfo) evt.getNewValue();
             if (!addr.equals(dinfo.getSender()))
                 return ;
-            if (dinfo.isResponse())
+            if (dinfo.getId() == currNr)
             {
-                if (dinfo.getId() == currNr)
-                {
-                    confirmed = true;
-                    response = dinfo;
-                }
+                confirmed = true;
+                response = dinfo;
             }
         }
     }
@@ -50,15 +49,21 @@ public class ReqSender implements PropertyChangeListener
      * @param mssg
      * @throws ConnectionException 
      */
-    public void send(String mssg, Handler rHandler) throws ConnectionException
+    public void send(JSONObject json, Handler rHandler) throws ConnectionException
     {
-        if (ds.isClosed()) throw new ConnectionException("Socket is closed.");
         currNr = number++;
+        try {
+            json.put("res", false);
+            json.put("id", currNr);
+        } catch (JSONException ex) {
+            Logger.getLogger(ReqSender.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (ds.isClosed()) throw new ConnectionException("Socket is closed.");
         confirmed = false;
         for (int i = 0; i < retrials && !confirmed; ++i)
         {
             try {
-                Utils.send(ds, addr, currNr + "|" + mssg);
+                Utils.send(ds, addr, json);
             } catch (IOException ex) {
                 throw new ConnectionException(ex.getMessage());
             }
@@ -74,7 +79,12 @@ public class ReqSender implements PropertyChangeListener
         currNr = -1;
         if (!confirmed)
         {
-            System.out.println("Sending \"" + mssg + "\"\n to " + addr + " failed.");
+            try {
+                System.out.println("Sending \"" + json.toString(2) + "\"\n to "
+                        + addr + " failed.");
+            } catch (JSONException ex) {
+                Logger.getLogger(ReqSender.class.getName()).log(Level.SEVERE, null, ex);
+            }
             throw new ConnectionException("Delivery of packet was"
                 + " not confirmed");
         }

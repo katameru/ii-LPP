@@ -6,6 +6,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -40,7 +45,7 @@ public class Utils
                 .decode(ByteBuffer.wrap(tab, 0, length)).toString();
     }
     
-    public static void send(DatagramSocket ds, AddrInfo addr, String mssg)
+    private static void send(DatagramSocket ds, AddrInfo addr, String mssg)
             throws IOException
     {
         DatagramPacket dp = new DatagramPacket(new byte[0], 0);
@@ -52,9 +57,15 @@ public class Utils
         
         System.out.println("Sending: " + Charset.forName("UTF8")
                 .decode(ByteBuffer.wrap(dp.getData())));
-        System.out.println("Data length: " + dp.getData().length + "\n");
+        //System.out.println("Data length: " + dp.getData().length + "\n");
         
         ds.send(dp);
+    }
+    
+    public static void send(DatagramSocket ds, AddrInfo addr, JSONObject json)
+            throws IOException
+    {
+        send(ds, addr, json.toString());
     }
     
     public static String glue(String[] parts)
@@ -75,5 +86,50 @@ public class Utils
         for (int i = 0; i < l; ++i)
             res[i] = arr[i+beg];
         return res;
+    }
+    
+    public static JSONObject makeJSON(String type)
+    {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("type", type);
+        } catch (JSONException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return json;
+    }    
+    
+    public static JSONObject emptyRes(long id)
+    {
+        JSONObject res = makeJSON("emptyresponse");
+        try {
+            res.put("res", true);
+            res.put("id", id);
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return res;
+    }    
+    
+    public static JSONObject makeRes(String type, long id)
+    {
+        JSONObject res = makeJSON(type);
+        try {
+            res.put("res", true);
+            res.put("id", id);
+        } catch (JSONException ex) {
+            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return res;
+    }
+    
+    public static String[] getChannels(JSONArray arr) throws JSONException
+    {
+        String[] channels = new String[arr.length()];
+        for (int i = 0; i < channels.length; ++i)
+        {
+            channels[i] = arr.getString(i);
+        }
+        return channels;
     }
 }
