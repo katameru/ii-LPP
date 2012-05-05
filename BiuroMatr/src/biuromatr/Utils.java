@@ -105,4 +105,68 @@ public class Utils
         }
         return channels;
     }
+
+    public static boolean validateMessage(JSONObject msg)
+    {
+        try {
+            msg.getBoolean("res");
+            msg.getInt("id");
+            switch(msg.getString("type")) {
+                case "newclient" :
+                    msg.getString("nick");
+                    return true;
+                case "newchannel" :
+                    msg.getString("name");
+                    return true;
+                case "join" :
+                    msg.getString("name");
+                    return true;
+                case "error" :
+                    msg.getString("desc");
+                    return true;
+                case "invalidnick" :
+                    msg.getString("desc");
+                    return true;
+                case "channellist" :
+                    JSONArray arr = msg.getJSONArray("channels");
+                    for(int i = 0; i < arr.length(); i++)
+                    {
+                        arr.getString(i);
+                    }
+                    return true;
+                case "welcome" :
+                    msg.getString("nick");
+                    return true;
+                case "channelrejected" :
+                    msg.getString("desc");
+                    return true;
+                case "joinrejected" :
+                    msg.getString("desc");
+                    return true;
+                case "address" :
+                    msg.getString("nick");
+                    msg.getString("address");
+                    msg.getString("port");
+                    return true;
+                case "chat" :
+                    msg.getString("mssg");
+                    return true;
+                case "joinaccepted" :
+                case "exitaccepted" :
+                case "channelaccepted" :
+                case "userleft" :
+                case "emptyresponse" :
+                case "exit" :
+                case "sendchannels" :
+                case "holepunch" :
+                case "echorequest" :
+                case "echoresponse" :
+                    return true;
+            }
+          return false;
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
 }
