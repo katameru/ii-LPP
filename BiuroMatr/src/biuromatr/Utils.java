@@ -67,27 +67,7 @@ public class Utils
     {
         send(ds, addr, json.toString());
     }
-    
-    public static String glue(String[] parts)
-    {
-        String res = "";
-        if (parts.length == 1) res = parts[0] + "|";
-        else {
-            for (int i = 0; i < parts.length; ++i)
-                res += parts[i] + (i == parts.length-1 ? "" : "|");
-        }
-        return res;
-    }
-    
-    public static String[] subarray(String[] arr, int beg, int end)
-    {
-        int l = end - beg;
-        String[] res = new String[l];
-        for (int i = 0; i < l; ++i)
-            res[i] = arr[i+beg];
-        return res;
-    }
-    
+
     public static JSONObject makeJSON(String type)
     {
         JSONObject json = new JSONObject();
@@ -101,14 +81,7 @@ public class Utils
     
     public static JSONObject emptyRes(long id)
     {
-        JSONObject res = makeJSON("emptyresponse");
-        try {
-            res.put("res", true);
-            res.put("id", id);
-        } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return res;
+        return makeRes("emptyresponse", id);
     }    
     
     public static JSONObject makeRes(String type, long id)

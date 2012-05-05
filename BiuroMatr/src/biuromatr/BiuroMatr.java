@@ -1,25 +1,18 @@
 
 package biuromatr;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Set;
-import java.util.TreeSet;
-import org.json.JSONException;
-import org.json.JSONObject;
+import static biuromatr.Utils.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimerTask;
-import java.util.Timer;
-import java.util.Map;
-import java.util.TreeMap;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static biuromatr.Utils.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -480,7 +473,7 @@ public class BiuroMatr implements Runnable
             return ;
         }
         
-        channels.put(nick, new Channel(ci, chName));
+        channels.put(nick, new Channel(ci, chName, 32));
         try {
             res.put("type", "channelaccepted");
             res.put("name", chName);   
@@ -518,7 +511,7 @@ public class BiuroMatr implements Runnable
     private void handleJoin(DatagramInfo dinfo) throws IOException
     {
         JSONObject res = emptyRes(dinfo.getId());
-        String name = "";
+        String name;
         try {
             name = dinfo.getJson().getString("name");
         } catch (JSONException ex) {
@@ -538,7 +531,7 @@ public class BiuroMatr implements Runnable
         {
             //client is already in a channel        
             try {
-                if (ch != null && guest.nick.equals(ch.guest.nick))
+                if (ch != null && ch.guests.contains(guest))
                 {  //it is duplicated request to join this channel. 
                     res.put("type", "joinaccepted");
                     res.put("name", name);
@@ -554,7 +547,6 @@ public class BiuroMatr implements Runnable
             } catch (JSONException ex) {
                 Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);            
             }
-            return ;
         }
         else if (ch == null) 
         {
@@ -600,7 +592,7 @@ public class BiuroMatr implements Runnable
      */
     private void sendAddr(final Channel ch)
     {
-        final ClientInfo guest = ch.guest,
+        final ClientInfo guest = ch.guests.iterator().next(), //TODO: omatko
                          host  = ch.host;
 
         new Thread(new Runnable() {
@@ -625,7 +617,8 @@ public class BiuroMatr implements Runnable
         JSONObject json = makeJSON("address");
         try {
             json.put("nick", snd.nick);
-            json.put("address", snd.ai.toString());
+            json.put("address", snd.ai.getAdressString());
+            json.put("port", snd.ai.getPort());
         } catch (JSONException ex) {
             Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -655,7 +648,7 @@ public class BiuroMatr implements Runnable
             }
             else {
                 channels.remove(nick);
-                ch.setGuest(null); //host will wait for new iterlocutor
+                ch.removeGuest(clients.get(nick)); //host will wait for new iterlocutor
                 try {
                     JSONObject json = makeJSON("userleft");
                     try {
@@ -675,12 +668,12 @@ public class BiuroMatr implements Runnable
     {  
         channels.remove(ch.host.nick);
         channelNames.remove(ch.name);
-        if (ch.guest != null)
+        for(ClientInfo guest : ch.guests)
         {
-            channels.remove(ch.guest.nick);
+            channels.remove(guest.nick);
             try {
                 JSONObject json = makeJSON("channelcanceled");
-                ch.guest.toClient.send(json, resHandler);
+                guest.toClient.send(json, resHandler);
             } catch (ConnectionException ex) {
                 Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -772,22 +765,31 @@ class ClientInfo
 
 class Channel
 {
-    Channel(ClientInfo host, String name)
+    Channel(ClientInfo host, String name, int capacity)
     {
         this.host = host;
         this.name = name;
+        this.capacity = capacity;
+        this.guests = new HashSet<ClientInfo>();
     }
     
     boolean isFull()
     {
-        return guest != null;
+        return guests.size() == capacity - 1;
     }
     
     void setGuest(ClientInfo guest)
     {
-        this.guest = guest;
+        this.guests.add(guest);
     }
     
-    ClientInfo host, guest = null;
+    boolean removeGuest(ClientInfo guest)
+    {
+        return guests.remove(guest);
+    }
+    
+    ClientInfo host;
+    Set<ClientInfo> guests;
     String name; 
+    int capacity;
 }

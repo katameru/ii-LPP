@@ -1,16 +1,16 @@
 
 package biuromatr;
 
+import static biuromatr.Utils.*;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-import java.net.SocketException;
-import java.util.TreeMap;
-import java.util.Map;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import static biuromatr.Utils.*;
+import java.net.SocketException;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONException;
@@ -363,7 +363,7 @@ public class Client
         {            
             try {
                 interlocutor = dinfo.getJson().getString("nick");
-                clientAddr = AddrInfo.fromString(dinfo.getJson().getString("address"));
+                clientAddr = AddrInfo.fromJsonInfo(dinfo.getJson().getString("address"), dinfo.getJson().getInt("port"));
                 toClient = new ReqSender(ds, receiver, clientAddr);
                 JSONObject json = makeJSON("holepunch");
                 toClient.send(json, resHandler);
@@ -662,7 +662,7 @@ public class Client
     /**
      * Map communicate -> Handler.
      */
-    protected Map<String, Handler> handlers = new TreeMap<String, Handler>();
+    protected Map<String, Handler> handlers = new TreeMap<>();
     
     /**
      * Response handler. It is used by send method of toClient and toServer.
