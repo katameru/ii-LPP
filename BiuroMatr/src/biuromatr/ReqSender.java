@@ -11,7 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * ReqSender is derivation for Request Sender.
+ * ReqSender is abbreviation for Request Sender.
  * It is a class for sending datagrams which demand response or at
  * least datagram delivery confirmation.
  * @author grzes

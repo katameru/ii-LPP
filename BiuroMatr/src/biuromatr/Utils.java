@@ -45,6 +45,13 @@ public class Utils
                 .decode(ByteBuffer.wrap(tab, 0, length)).toString();
     }
     
+    /**
+     * Sends a string.
+     * @param ds Socket used to send datagram. 
+     * @param addr Address to which we send datagram.
+     * @param mssg Contents of datagram.
+     * @throws IOException 
+     */
     private static void send(DatagramSocket ds, AddrInfo addr, String mssg)
             throws IOException
     {
@@ -60,25 +67,30 @@ public class Utils
         //System.out.println("Data length: " + dp.getData().length + "\n");
         
         ds.send(dp);
-    }
+    } 
     
+    /**
+     * Sends a json using ds to addr.
+     * @param ds Socket used to send datagram. 
+     * @param addr Address to which we send datagram.
+     * @param json JSONObject that is being sent.
+     * @throws IOException 
+     */
     public static void send(DatagramSocket ds, AddrInfo addr, JSONObject json)
             throws IOException
     {
         send(ds, addr, json.toString());
     }
     
-    public static String glue(String[] parts)
-    {
-        String res = "";
-        if (parts.length == 1) res = parts[0] + "|";
-        else {
-            for (int i = 0; i < parts.length; ++i)
-                res += parts[i] + (i == parts.length-1 ? "" : "|");
-        }
-        return res;
-    }
-    
+    /**
+     * Returns subarray of an original array. New array is located, which 
+     * contains references to objects from original array. Indices copied are
+     * from the rand [beg, end).
+     * @param arr Array from which we want a fragment.
+     * @param beg First index.
+     * @param end end-1 is index of last taken element.
+     * @return newly allocated array.
+     */
     public static String[] subarray(String[] arr, int beg, int end)
     {
         int l = end - beg;
@@ -88,6 +100,11 @@ public class Utils
         return res;
     }
     
+    /**
+     * Creates a JSONObject with given type of message.
+     * @param type type of message.
+     * @return JSONObject.
+     */
     public static JSONObject makeJSON(String type)
     {
         JSONObject json = new JSONObject();
@@ -98,7 +115,14 @@ public class Utils
         }
         return json;
     }    
-    
+        
+    /**
+     * Creates a JSONObject with type of message "emptyresponse" responding to 
+     * datagram with given id. Usable to 
+     * confirm delivery of a message which doesn't really need response.
+     * @param id id of message to which we are responding.
+     * @return JSONObject.
+     */
     public static JSONObject emptyRes(long id)
     {
         JSONObject res = makeJSON("emptyresponse");
@@ -110,7 +134,14 @@ public class Utils
         }
         return res;
     }    
-    
+        
+    /**
+     * Creates a JSONObject with given type of message responding to 
+     * datagram with given id.
+     * @param type type of message.
+     * @param id id of message to which we are responding.
+     * @return JSONObject.
+     */
     public static JSONObject makeRes(String type, long id)
     {
         JSONObject res = makeJSON(type);
@@ -123,6 +154,13 @@ public class Utils
         return res;
     }
     
+    /**
+     * Takes a JSONArray object, and assumes that array contain names of
+     * channels. Returns that names as a an array of Strings.
+     * @param arr JSONArray of channel names.
+     * @return String array of channel names.
+     * @throws JSONException 
+     */
     public static String[] getChannels(JSONArray arr) throws JSONException
     {
         String[] channels = new String[arr.length()];
