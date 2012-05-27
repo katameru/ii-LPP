@@ -1,3 +1,5 @@
 *.swp
 *.class
 *.pdf
+/BiuroMatr/build/
+/BiuroMatr/nbproject/private/
