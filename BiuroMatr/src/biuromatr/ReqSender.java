@@ -43,11 +43,8 @@ public class ReqSender implements PropertyChangeListener
     }
     
     /**
-     * Sends message. String "id|" (where id is identification number of packet)
-     * is added at the beginning of message. It blocks the thread until 
+     * Sends message. It blocks the thread until 
      * confirmation is received or method gives up.
-     * @param mssg
-     * @throws ConnectionException 
      */
     public void send(JSONObject json, Handler rHandler) throws ConnectionException
     {

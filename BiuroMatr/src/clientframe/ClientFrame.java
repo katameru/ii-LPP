@@ -205,7 +205,7 @@ public class ClientFrame extends JFrame implements PropertyChangeListener
             @Override
             protected Void doInBackground()
             {
-                client.leaveChat();
+                client.leaveChannel();
                 return null;
             }
 
@@ -229,18 +229,13 @@ public class ClientFrame extends JFrame implements PropertyChangeListener
         }
         else if ("chatmssg".equals(evt.getPropertyName()))
         {
-            String mssg = evt.getNewValue().toString();
+            Message mssg = (Message) evt.getNewValue();
             chatMssgReceived(mssg);
         }
         else if ("connected".equals(evt.getPropertyName()))
         {
             boolean con = (Boolean) evt.getNewValue();
             pchat.sendEnabled(con);
-            if (client.isHost())
-            {
-                if (con) pchat.append("*** CLIENT CONNECTED ***");
-                else pchat.append("*** CLIENT DISCONNECTED ***");
-            }
         }
         else if ("problem".equals(evt.getPropertyName()))
         {
@@ -251,6 +246,16 @@ public class ClientFrame extends JFrame implements PropertyChangeListener
         {
             String[] channels = (String[] ) evt.getNewValue();
             channelListChanged(channels);
+        }
+        else if ("joined".equals(evt.getPropertyName()))
+        {
+            String nick = evt.getNewValue().toString();
+            pchat.append("***** " + nick + " joined *****");
+        }
+        else if ("left".equals(evt.getPropertyName()))
+        {
+            String nick = evt.getNewValue().toString();
+            pchat.append("***** " + nick + " left *****");
         }
         else System.err.println("Unknown property \""
                 + evt.getPropertyName() + "\"");
@@ -279,10 +284,10 @@ public class ClientFrame extends JFrame implements PropertyChangeListener
         setSize(d.width+1, d.height+1);
     }
     
-    private void chatMssgReceived(String mssg)
+    private void chatMssgReceived(Message mssg)
     {
-        String beg = "<" + client.getInterlocutor() + "> ";
-        pchat.append(beg + mssg);
+        String beg = "<" + mssg.author + "> ";
+        pchat.append(beg + mssg.content);
     }
     
     private void channelListChanged(String[] names)

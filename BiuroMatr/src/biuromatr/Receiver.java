@@ -104,7 +104,7 @@ public class Receiver
     private DatagramSocket ds;
     
     /**
-     * Lets now about: closing of Receiver and incoming packets.
+     * Lets know about: closing of Receiver and/or incoming packets.
      */
     private PropertyChangeSupport pcs;
     

@@ -25,24 +25,14 @@ public class AddrInfo implements Comparable<AddrInfo>
         return port;
     }
     
-    String toString(InetAddress iaddr, int port)
+    public String getAdressString()
     {
-        return iaddr.getHostAddress() + ":" + port;
-    }
+        return iaddr.getHostAddress();
+    }  
     
-    @Override
-    public String toString()
+    public static AddrInfo fromJsonInfo(String address, int port) throws Exception
     {
-        return toString(iaddr, port);
-    }
-    
-    public static AddrInfo fromString(String str) throws Exception
-    {
-        String[] tab = str.split(":");
-        if (tab.length < 2)
-            throw new Exception("Address not valid.");
-        InetAddress iaddr = InetAddress.getByName(tab[0]);
-        int port = Integer.parseInt(tab[1]);
+        InetAddress iaddr = InetAddress.getByName(address);
         return new AddrInfo(iaddr, port);
     }
     

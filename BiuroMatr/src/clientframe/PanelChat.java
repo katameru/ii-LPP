@@ -24,6 +24,7 @@ public class PanelChat extends JPanel
         this.parent = parent;setLayout(new BorderLayout());
         add(new JScrollPane(area), BorderLayout.CENTER);
         area.setEditable(false);
+        area.setText("Wait for connection...\n");
         JPanel south = createSouth();
         add(south, BorderLayout.SOUTH);
     }

@@ -1,25 +1,18 @@
 
 package biuromatr;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Set;
-import java.util.TreeSet;
-import org.json.JSONException;
-import org.json.JSONObject;
+import static biuromatr.Utils.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimerTask;
-import java.util.Timer;
-import java.util.Map;
-import java.util.TreeMap;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static biuromatr.Utils.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -83,9 +76,10 @@ public class BiuroMatr implements Runnable
             @Override
             public void propertyChange(PropertyChangeEvent evt)
             {
+                    DatagramInfo dinfo = (DatagramInfo) evt.getNewValue();
+                System.out.println("Received: " + dinfo.getType());
                 if ("request".equals(evt.getPropertyName()))
                 {
-                    DatagramInfo dinfo = (DatagramInfo) evt.getNewValue();
                     handleRequest(dinfo);
                 }
             }
@@ -126,7 +120,7 @@ public class BiuroMatr implements Runnable
     }    
     
     /**
-     * Method sends to all clients youthere packet.
+     * Method sends to all clients echorequest packet.
      */
     private void sendEchoRequest()
     {
@@ -155,8 +149,8 @@ public class BiuroMatr implements Runnable
     private void deleteDeadClients()
     {
         //System.out.println("Dead check: " + System.currentTimeMillis());
-        List <String> deadNicks = new ArrayList<String>();
-        List <AddrInfo> deadAddrs = new ArrayList<AddrInfo>();
+        List <String> deadNicks = new ArrayList<>();
+        List <AddrInfo> deadAddrs = new ArrayList<>();
         for (ClientInfo ci: clients.values()) {
             if (ci.dead)
             {
@@ -480,7 +474,7 @@ public class BiuroMatr implements Runnable
             return ;
         }
         
-        channels.put(nick, new Channel(ci, chName));
+        channels.put(nick, new Channel(ci, chName, 32));
         try {
             res.put("type", "channelaccepted");
             res.put("name", chName);   
@@ -518,7 +512,7 @@ public class BiuroMatr implements Runnable
     private void handleJoin(DatagramInfo dinfo) throws IOException
     {
         JSONObject res = emptyRes(dinfo.getId());
-        String name = "";
+        String name;
         try {
             name = dinfo.getJson().getString("name");
         } catch (JSONException ex) {
@@ -538,7 +532,7 @@ public class BiuroMatr implements Runnable
         {
             //client is already in a channel        
             try {
-                if (ch != null && guest.nick.equals(ch.guest.nick))
+                if (ch != null && ch.guests.contains(guest))
                 {  //it is duplicated request to join this channel. 
                     res.put("type", "joinaccepted");
                     res.put("name", name);
@@ -554,7 +548,6 @@ public class BiuroMatr implements Runnable
             } catch (JSONException ex) {
                 Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);            
             }
-            return ;
         }
         else if (ch == null) 
         {
@@ -590,7 +583,7 @@ public class BiuroMatr implements Runnable
             send(ds, guest.ai, res);            
             ch.setGuest(guest);
             channels.put(guest.nick, ch);
-            sendAddr(ch);
+            sendAddrToEachOther(guest, ch.host);
         }
     } 
     
@@ -598,11 +591,8 @@ public class BiuroMatr implements Runnable
      * Sends each others addresses to host and client of given channel.
      * @param ch channel.
      */
-    private void sendAddr(final Channel ch)
+    private void sendAddrToEachOther(final ClientInfo guest, final ClientInfo host)
     {
-        final ClientInfo guest = ch.guest,
-                         host  = ch.host;
-
         new Thread(new Runnable() {
 
             @Override
@@ -625,7 +615,8 @@ public class BiuroMatr implements Runnable
         JSONObject json = makeJSON("address");
         try {
             json.put("nick", snd.nick);
-            json.put("address", snd.ai.toString());
+            json.put("address", snd.ai.getAdressString());
+            json.put("port", snd.ai.getPort());
         } catch (JSONException ex) {
             Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -655,7 +646,7 @@ public class BiuroMatr implements Runnable
             }
             else {
                 channels.remove(nick);
-                ch.setGuest(null); //host will wait for new iterlocutor
+                ch.removeGuest(clients.get(nick)); //host will wait for new iterlocutor
                 try {
                     JSONObject json = makeJSON("userleft");
                     try {
@@ -675,12 +666,12 @@ public class BiuroMatr implements Runnable
     {  
         channels.remove(ch.host.nick);
         channelNames.remove(ch.name);
-        if (ch.guest != null)
+        for(ClientInfo guest : ch.guests)
         {
-            channels.remove(ch.guest.nick);
+            channels.remove(guest.nick);
             try {
                 JSONObject json = makeJSON("channelcanceled");
-                ch.guest.toClient.send(json, resHandler);
+                guest.toClient.send(json, resHandler);
             } catch (ConnectionException ex) {
                 Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -717,13 +708,13 @@ public class BiuroMatr implements Runnable
      * Map containing nicknames of clients with their addresses. Value set
      * is the same as in addrs.
      */
-    private Map <String, ClientInfo> clients = new TreeMap<String, ClientInfo>();
+    private Map <String, ClientInfo> clients = new TreeMap<>();
     
     /**
      * Map with all addresses of clients connected to server. Value set is the 
      * same as in clients.
      */   
-    private Map <AddrInfo, ClientInfo> addrs = new TreeMap<AddrInfo, ClientInfo>();
+    private Map <AddrInfo, ClientInfo> addrs = new TreeMap<>();
     
     /**
      * Capacity of the buffer of data in datagram packets.
@@ -739,16 +730,16 @@ public class BiuroMatr implements Runnable
      * String containing nicks of clients who opened chat channels. It is
      * updated every time when any change happens.
      */
-    private Set<String> channelNames = new TreeSet<String>();
+    private Set<String> channelNames = new TreeSet<>();
     
     /**
      * Map containing nicks of clients and channels in which they are.
      */
-    private TreeMap <String, Channel> channels = new TreeMap<String, Channel>();
+    private TreeMap <String, Channel> channels = new TreeMap<>();
     
     private Receiver receiver;
     
-    private Map<String, Handler> handlers = new TreeMap<String, Handler>();
+    private Map<String, Handler> handlers = new TreeMap<>();
     private Handler resHandler;
 }
 /**
@@ -772,22 +763,31 @@ class ClientInfo
 
 class Channel
 {
-    Channel(ClientInfo host, String name)
+    Channel(ClientInfo host, String name, int capacity)
     {
         this.host = host;
         this.name = name;
+        this.capacity = capacity;
+        this.guests = new HashSet<>();
     }
     
     boolean isFull()
     {
-        return guest != null;
+        return guests.size() == capacity - 1;
     }
     
     void setGuest(ClientInfo guest)
     {
-        this.guest = guest;
+        this.guests.add(guest);
     }
     
-    ClientInfo host, guest = null;
+    boolean removeGuest(ClientInfo guest)
+    {
+        return guests.remove(guest);
+    }
+    
+    ClientInfo host;
+    Set<ClientInfo> guests;
     String name; 
+    int capacity;
 }

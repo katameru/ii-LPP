@@ -1,16 +1,19 @@
 
 package biuromatr;
 
+import static biuromatr.Utils.*;
+import clientframe.Message;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-import java.net.SocketException;
-import java.util.TreeMap;
-import java.util.Map;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import static biuromatr.Utils.*;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONException;
@@ -235,6 +238,24 @@ public class Client
             }
         };
         handlers.put("emptyresponse", handler);
+        
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleJoined(dinfo);
+            }
+        };
+        handlers.put("joined", handler);
+        
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleLeft(dinfo);
+            }
+        };
+        handlers.put("left", handler);
     }
     
     private void handleRequest(final DatagramInfo dinfo)
@@ -245,8 +266,8 @@ public class Client
             public void run()
             {
                 Handler h = null;
-                if ( dinfo.getSender().equals(clientAddr) ||
-                     dinfo.getSender().equals(serverAddr) )
+                
+                if ( knownSender(dinfo) )
                 {
                     h = handlers.get(dinfo.getType());
                     if (h != null) h.handle(dinfo);
@@ -266,7 +287,7 @@ public class Client
         } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-        resetInterlocutor();
+        resetConnections();
         pcs.firePropertyChange("state", State.DISC, State.MENU);
         state = State.MENU;
         handleChannelList(dinfo);
@@ -310,6 +331,7 @@ public class Client
         state = State.CHAT;
         iamhost = true;
         pcs.firePropertyChange("state", State.MENU, State.CHAT);
+        pcs.firePropertyChange("connected", false, true);
     }
     
     private void handleChannelRejected(DatagramInfo dinfo)
@@ -351,6 +373,7 @@ public class Client
     
     private void handleJoinAccepted(DatagramInfo dinfo)
     {
+        //First comes packet joinaccepted. After that should come address of host.
         state = State.CHAT;
         iamhost = false;
         pcs.firePropertyChange("state", State.MENU, State.CHAT);
@@ -358,17 +381,61 @@ public class Client
     
     private void handleAddress(DatagramInfo dinfo)
     {
+        /* If we are host we are in state CHAT for sure, because always first
+         * will come 'channelaccepted' and after that some client may want to
+         * join us (maybe except some really patologic cases).
+         * If we are guest sometimes packet 'joinaccepted' will come after
+         * 'address'. I dont have a really good idea what do in such case.
+         * In code below i simply ignore packet with address. Hopefully soon
+         * will come 'joinaccepted' and we will make a use from next 'address'
+         * packet (server sends few of them). 
+         */
+        if (state != State.CHAT)
+            return ;
         confirm(dinfo);
-        if (clientAddr == null)
-        {            
+        String nick, address, port;
+        AddrInfo ai;  
+        try {
+            nick = dinfo.getJson().getString("nick");
+            address = dinfo.getJson().getString("address");
+            port = dinfo.getJson().getString("port");
+            ai = new AddrInfo(InetAddress.getByName(address), Integer.parseInt(port));
+        } catch (JSONException | UnknownHostException | NumberFormatException ex) {
+            System.out.println("Invalid datagram with address received.");
+            return ;
+        }
+              
+        if (iamhost)
+        {
             try {
-                interlocutor = dinfo.getJson().getString("nick");
-                clientAddr = AddrInfo.fromString(dinfo.getJson().getString("address"));
-                toClient = new ReqSender(ds, receiver, clientAddr);
+                ClientInfo ci = new ClientInfo(ai, nick, receiver);
+                guests.put(nick, ci);
+                addrs.put(ai, ci);
                 JSONObject json = makeJSON("holepunch");
-                toClient.send(json, resHandler);
-            } catch (Exception ex) {
+                ci.toClient.send(json, resHandler);
+            } catch (ConnectionException ex) {
+                guests.remove(nick);
+                addrs.remove(ai);
+                return ;
+            }            
+            try {
+                JSONObject json = makeJSON("joined");
+                json.put("nick", nick);
+                propagate(json, null);
+            } catch (JSONException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            pcs.firePropertyChange("joined", null, nick);
+        }
+        else
+        {         
+            try {
+                hostInfo = new ClientInfo(ai, nick, receiver);
+                JSONObject json = makeJSON("holepunch");
+                hostInfo.toClient.send(json, resHandler);
+                pcs.firePropertyChange("connected", false, true);
+            } catch (ConnectionException ex) {
+                hostInfo = null;
             }
         }
     }
@@ -383,9 +450,19 @@ public class Client
     private void handleUserLeft(DatagramInfo dinfo)
     {
         confirm(dinfo);
-        if (state == State.CHAT && interlocutor != null)
+        ClientInfo ci = addrs.get(dinfo.getSender());
+        if (ci != null)
         {
-            resetInterlocutor();
+            addrs.remove(ci.ai);
+            guests.remove(ci.nick);
+             try {
+                JSONObject json = makeJSON("left");
+                json.put("nick", ci.nick);
+                propagate(json, null);
+            } catch (JSONException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            pcs.firePropertyChange("left", null, ci.nick);
         }
     }
     
@@ -403,38 +480,69 @@ public class Client
     
     private void handleICanHearYou(DatagramInfo dinfo)
     {
-        if (!clientConnected)
-        {
-            clientConnected = true;
-            pcs.firePropertyChange("connected", false, true);
-        }
+        //we do nothing, it just means our holepunch got through
     }
     
     private void handleChat(DatagramInfo dinfo)
     {
         confirm(dinfo);
-        String mssg = "";
+        String mssg = "", author = "";
         try {
             mssg = dinfo.getJson().getString("mssg");
+            author = dinfo.getJson().getString("author");
         } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-        pcs.firePropertyChange("chatmssg", null, mssg);        
+        pcs.firePropertyChange("chatmssg", null, new Message(mssg, author));        
+        if (iamhost) propagate(dinfo.getJson(), dinfo.getSender());
     }
     
     private void handleQuit(DatagramInfo dinfo)
     {
         /*
          * In fact quit message is unnecessary - server will send the
-         * message about leaving anyway.
+         * message about leaving anyway. I assume quit messages are sent
+         * only by guests.
          */
         confirm(dinfo);
-        if (state == State.CHAT && interlocutor != null)
+        ClientInfo ci = addrs.get(dinfo.getSender());
+        if (ci != null)
         {
-            resetInterlocutor();
+            addrs.remove(ci.ai);
+            guests.remove(ci.nick);
+             try {
+                JSONObject json = makeJSON("left");
+                json.put("nick", ci.nick);
+                propagate(json, null);
+            } catch (JSONException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            pcs.firePropertyChange("left", null, ci.nick);
         }
     }
     
+    private void handleJoined(DatagramInfo dinfo)
+    {
+        confirm(dinfo);
+        try {
+            String nick = dinfo.getJson().getString("nick");
+            pcs.firePropertyChange("joined", null, nick);
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }  
+    
+    private void handleLeft(DatagramInfo dinfo)
+    {
+        confirm(dinfo);
+        try {
+            String nick = dinfo.getJson().getString("nick");
+            pcs.firePropertyChange("left", null, nick);
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }   
+        
     private void confirm(DatagramInfo dinfo)
     {
         try {
@@ -455,15 +563,6 @@ public class Client
         }
     }
     
-    private void resetInterlocutor()
-    {
-        clientAddr = null;
-        toClient = null;
-        clientConnected = false;
-        interlocutor = null;
-        pcs.firePropertyChange("connected", true, false);
-    }
-    
     private void letKnowYouAreFree()
     {
         if (state == State.CHAT)
@@ -474,7 +573,7 @@ public class Client
             } catch (Exception ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }   
-            resetInterlocutor();   
+            resetConnections();   
             pcs.firePropertyChange("state", state, State.MENU);
             state = State.MENU;
         }        
@@ -538,26 +637,32 @@ public class Client
     
     public void sendChatMssg(String mssg) throws ConnectionException
     {
-        if (!clientConnected)
-            throw new ConnectionException("You don't have connection to any client.");
         JSONObject json = makeJSON("chat");
         try {
             json.put("mssg", mssg);
+            json.put("author", myNick);
         } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-        toClient.send(json, resHandler);
+        if (!iamhost)
+        {
+            if (hostInfo == null)
+                throw new ConnectionException("You don't have connection to host.");
+            hostInfo.toClient.send(json, resHandler);
+        }
+        else propagate(json, null);
     }
     
-    public void leaveChat()
+    public void leaveChannel()
     {
-        if (clientConnected)
+        if (!iamhost)
         {
             try {
                 JSONObject json = makeJSON("quit");
-                toClient.send(json, resHandler);
+                hostInfo.toClient.send(json, resHandler);
             } catch (ConnectionException ex) {
-               //we don't do anything, he is dead but we are leaving anyway
+               //we don't do anything, we can't contact host
+               //but we are leaving anyway
             }
         }
         letKnowYouAreFree();
@@ -579,14 +684,45 @@ public class Client
         return myNick;
     }
 
-    public String getInterlocutor()
-    {
-        return interlocutor;
-    }
-
     public boolean isHost()
     {
         return iamhost;
+    }
+
+    private void propagate(final JSONObject json, AddrInfo from)
+    {
+        for (final ClientInfo guest: guests.values())
+        {
+            if (guest.ai.equals(from))
+                continue;
+            new Thread( new Runnable() {
+
+                @Override
+                public void run()
+                {
+                    try {
+                        guest.toClient.send(json, resHandler);
+                    } catch (ConnectionException ex) {
+                        guest.dead = true;
+                    }
+                }
+            } ).start();                    
+        }
+    }
+    
+    private void resetConnections()
+    {
+        hostInfo = null;
+        guests.clear();
+        addrs.clear();
+    }
+    
+    private boolean knownSender(DatagramInfo dinfo)
+    {
+        if (hostInfo != null && dinfo.getSender().equals(hostInfo.ai))
+            return true;
+        else return addrs.containsKey(dinfo.getSender()) ||
+                    dinfo.getSender().equals(serverAddr);
     }
         
     public enum State {
@@ -625,19 +761,18 @@ public class Client
     private ReqSender toServer;
     
     /**
-     * Address of other client application, with which we are communicating.
+     * Object containg host nick, ReqSender to host, etc.
      */
-    private AddrInfo clientAddr = null;
+    private ClientInfo hostInfo;
     
     /**
-     * Sends datagrams to client.
+     * Map guest_nick -> guest_info
      */
-    private ReqSender toClient;    
-    
+    private TreeMap<String, ClientInfo> guests = new TreeMap<>();
     /**
-     * True when interlocutor sends packet icanhearyou.
+     * Map guest_address -> guest_info
      */
-    private boolean clientConnected = false;
+    private TreeMap<AddrInfo, ClientInfo> addrs = new TreeMap<>();
     
     /**
      * When state is CHAT then iamhost field indicates if this client is host
@@ -650,11 +785,6 @@ public class Client
     private String myNick;
     
     /**
-     * Name of out interlocutor;
-     */
-    private String interlocutor;
-    
-    /**
      * True when handlers where initialized.
      */
     private boolean hInit = false;
@@ -662,7 +792,7 @@ public class Client
     /**
      * Map communicate -> Handler.
      */
-    protected Map<String, Handler> handlers = new TreeMap<String, Handler>();
+    protected Map<String, Handler> handlers = new TreeMap<>();
     
     /**
      * Response handler. It is used by send method of toClient and toServer.
