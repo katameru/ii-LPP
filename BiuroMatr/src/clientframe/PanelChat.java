@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 public class PanelChat extends JPanel
 {
 
-    public PanelChat(ClientFrame parent)
+    public PanelChat(GameInterface parent)
     {
         this.parent = parent;setLayout(new BorderLayout());
         add(new JScrollPane(area), BorderLayout.CENTER);
@@ -69,7 +69,7 @@ public class PanelChat extends JPanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                parent.leaveChat();
+                parent.leaveGame();
             }
         });
         gbl.setConstraints(bttnDisc, gbc);
@@ -103,7 +103,7 @@ public class PanelChat extends JPanel
         bttnSend.setEnabled(on);
     }
     
-    private ClientFrame parent;
+    private GameInterface parent;
     private JTextArea area = new JTextArea();
     private JTextField field = new JTextField();
     private JButton bttnSend = new JButton("Send");

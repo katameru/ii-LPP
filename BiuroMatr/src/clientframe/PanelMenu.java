@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 public class PanelMenu extends JPanel
 {
 
-    public PanelMenu(ClientFrame parent)
+    public PanelMenu(GameInterface parent)
     {
         this.parent = parent;
         setLayout(new BorderLayout());
@@ -83,7 +83,7 @@ public class PanelMenu extends JPanel
         hosts.setListData(names);
     }
     
-    private ClientFrame parent;
+    private GameInterface parent;
     private JList hosts = new JList();
     private JButton refresh = new JButton("Refresh");
     private JButton join = new JButton("Join");

@@ -58,6 +58,7 @@ public class Receiver
                 DatagramInfo dinfo;
                 try {
                     dinfo = new DatagramInfo(dp);
+                    System.out.println("Received: " + dinfo.getType());
                     if (dinfo.isResponse())
                         pcs.firePropertyChange("response", null, dinfo);
                     else pcs.firePropertyChange("request", null, dinfo);

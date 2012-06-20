@@ -1,9 +1,9 @@
 
 package clientframe;
 
-import biuromatr.Message;
 import biuromatr.Client;
 import biuromatr.ConnectionException;
+import biuromatr.Message;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -11,46 +11,32 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JApplet;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 /**
  *
  * @author grzes
  */
-public class ClientFrame extends JFrame implements PropertyChangeListener,
-                                                   GameInterface
+public class SimpleChat extends JApplet implements PropertyChangeListener, GameInterface
 {
-    public static void main(String[] args)
-    {
-        SwingUtilities.invokeLater( new Runnable(){
-
-            @Override
-            public void run()
-            {
-                JFrame frame = new ClientFrame();
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(400, 300);
-                frame.setVisible(true);
-            }            
-        });
-    }
-    
-    ClientFrame()
+    public SimpleChat()
     {
         pdisc = new PanelDisc(this);
         pmenu = new PanelMenu(this);
         pchat = new PanelChat(this);
         pcurr = pdisc;
-        setTitle("Biuro Matrymonialne");
         
         add(pdisc);
     }
     
+    public void init()
+    {
+        
+    }
     
     public void connect(InetAddress ia, int port, final String nick)
     {
@@ -71,7 +57,7 @@ public class ClientFrame extends JFrame implements PropertyChangeListener,
                 try {
                     client.start(nick);
                 } catch (ConnectionException ex) {
-                    JOptionPane.showMessageDialog(ClientFrame.this,
+                    JOptionPane.showMessageDialog(SimpleChat.this,
                             "Could not contact server.",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -103,7 +89,7 @@ public class ClientFrame extends JFrame implements PropertyChangeListener,
                 try {
                     client.startChannel(client.getMyNick());
                 } catch (ConnectionException ex) {
-                    JOptionPane.showMessageDialog(ClientFrame.this,
+                    JOptionPane.showMessageDialog(SimpleChat.this,
                             "Could not contact server.",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -130,7 +116,7 @@ public class ClientFrame extends JFrame implements PropertyChangeListener,
                 try {
                     client.join(hostname);
                 } catch (ConnectionException ex) {
-                    JOptionPane.showMessageDialog(ClientFrame.this,
+                    JOptionPane.showMessageDialog(SimpleChat.this,
                             "Could not contact server.",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -157,7 +143,7 @@ public class ClientFrame extends JFrame implements PropertyChangeListener,
                 try {
                     client.refreshChannels();
                 } catch (ConnectionException ex) {
-                    JOptionPane.showMessageDialog(ClientFrame.this,
+                    JOptionPane.showMessageDialog(SimpleChat.this,
                             "Could not contact server.",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -184,7 +170,7 @@ public class ClientFrame extends JFrame implements PropertyChangeListener,
                     pchat.sendEnabled(false);
                     client.sendChatMssg(text);
                 } catch (ConnectionException ex) {
-                    JOptionPane.showMessageDialog(ClientFrame.this,
+                    JOptionPane.showMessageDialog(SimpleChat.this,
                             ex.getMessage(),
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }

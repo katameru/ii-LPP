@@ -2,7 +2,6 @@
 package biuromatr;
 
 import static biuromatr.Utils.*;
-import clientframe.Message;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -30,10 +29,11 @@ public class Client
      * @param serverIA address of server.
      * @param port servers port.
      */
-    public Client(InetAddress serverIA, int port)
+    public Client(InetAddress serverIA, int port, String gameName)
     {        
         serverAddr = new AddrInfo(serverIA, port);
         pcs =  new PropertyChangeSupport(this);
+        this.gameName = gameName;
     }
     
     public void init() throws SocketException
@@ -569,6 +569,7 @@ public class Client
         {
             try {
                 JSONObject json = makeJSON("exit");
+                json.put("game", gameName);
                 toServer.send(json, resHandler);
             } catch (Exception ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -590,6 +591,7 @@ public class Client
         JSONObject json = makeJSON("newclient");
         try {
             json.put("nick", nick);
+            json.put("game", gameName);
         } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -604,12 +606,14 @@ public class Client
         state = State.DISC;
     }
     
-    public void startChannel() throws ConnectionException
+    public void startChannel(String chName) throws ConnectionException
     {
         if (state != State.MENU) return ;
         JSONObject json = makeJSON("newchannel");
         try {
-            json.put("name", myNick);
+            json.put("name", chName);
+            json.put("game", gameName);
+            json.put("capacity", "32");
         } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -632,6 +636,11 @@ public class Client
     {
         if (state != State.MENU) return ;
         JSONObject json = makeJSON("sendchannels");
+        try {
+            json.put("game", gameName);
+        } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
         toServer.send(json, resHandler);      
     }
     
@@ -798,4 +807,9 @@ public class Client
      * Response handler. It is used by send method of toClient and toServer.
      */
     Handler resHandler;
+    
+    /**
+     * Game for each this client is used.
+     */
+    final String gameName;
 }

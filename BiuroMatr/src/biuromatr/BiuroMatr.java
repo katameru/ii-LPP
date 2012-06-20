@@ -60,7 +60,7 @@ public class BiuroMatr implements Runnable
      */
     BiuroMatr(int port) throws SocketException
     {
-        ds = new DatagramSocket(port);        
+        ds = new DatagramSocket(port);   
     }
     
     /**
@@ -70,29 +70,34 @@ public class BiuroMatr implements Runnable
     @Override
     public void run()
     {
+        initGameChannels();
         initHandlers();
         receiver = new Receiver(ds);
         PropertyChangeListener rListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt)
             {
-                    DatagramInfo dinfo = (DatagramInfo) evt.getNewValue();
-                System.out.println("Received: " + dinfo.getType());
                 if ("request".equals(evt.getPropertyName()))
                 {
+                    DatagramInfo dinfo = (DatagramInfo) evt.getNewValue();
                     handleRequest(dinfo);
                 }
             }
         };
         receiver.addPropertyChangeListener(rListener);   
         receiver.startListening();
-        installPresenceChecker();
+       // installPresenceChecker();
         try {
             System.out.println("Server is running.");
             receiver.getListening().join();
         } catch (InterruptedException ex) {
             Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private void initGameChannels()
+    {
+        channelNames.put("SimpleChat", new TreeSet<String>());
     }
     
     /**
@@ -351,10 +356,20 @@ public class BiuroMatr implements Runnable
     {
         JSONObject res = emptyRes(dinfo.getId());
         String nick = null;
+        String game = null;
         try {
             nick = dinfo.getJson().getString("nick");
+            game = dinfo.getJson().getString("game");
         } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                res.put("type", "error");
+                res.put("desc", "Request 'newclient' should"
+                        + " contain fields 'nick' and 'game'.");                
+            } catch (JSONException ex2) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex2);
+            }
+            send(ds, dinfo.getSender(), res);
+            return ;
         }
         if (!isNickOK(nick))
         {
@@ -366,6 +381,18 @@ public class BiuroMatr implements Runnable
             }
             send(ds, dinfo.getSender(), res);
             return ;
+        }
+        Set<String> chNames = channelNames.get(game);
+        if (chNames == null)
+        {
+            try {
+                res.put("type", "error");
+                res.put("desc", "Unknown game " + game + ".");                
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, dinfo.getSender(), res);
+            return ;            
         }
         
         ClientInfo ci = clients.get(nick);
@@ -379,7 +406,7 @@ public class BiuroMatr implements Runnable
             try {
                 res.put("type", "welcome");
                 res.put("nick", nick);
-                res.put("channels", channelNames);
+                res.put("channels", chNames);
             } catch (JSONException ex) {
                 Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -426,8 +453,27 @@ public class BiuroMatr implements Runnable
     {
         JSONObject res = emptyRes(dinfo.getId());
         ClientInfo ci = addrs.get(dinfo.getSender());
-        String nick = ci.nick;
-        Channel ch = channels.get(nick);
+        
+        /******************* Extracting datagram content ***********/
+        String chName = "";
+        int capacity = 0;
+        String game = "";
+        try {
+            capacity = dinfo.getJson().getInt("capacity");
+            game = dinfo.getJson().getString("game");
+            chName = dinfo.getJson().getString("name");
+        } catch (JSONException ex) {
+            try {
+                res.put("type", "error");
+                res.put("desc", "NewChannel request should "
+                        + "contain fields 'name', 'capacity' and 'game'.");
+                send(ds, dinfo.getSender(), res);
+            } catch (JSONException ex1) { }
+            return ;
+        }   
+        
+        /************ Checking if client is already in a channel ***********/
+        Channel ch = channels.get(ci.nick);
         if (ch != null)
         {   //client already is in a channel. It may be duplicated datagram
             //or some strange error.
@@ -442,13 +488,7 @@ public class BiuroMatr implements Runnable
             return ;
         }
         
-        String chName = null;
-        try {
-            chName = dinfo.getJson().getString("name");
-        } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        /**************** Checking if channel name is valid ***************/
         if (!isNickOK(chName))
         {
             try {
@@ -474,15 +514,37 @@ public class BiuroMatr implements Runnable
             return ;
         }
         
-        channels.put(nick, new Channel(ci, chName, 32));
-        try {
-            res.put("type", "channelaccepted");
-            res.put("name", chName);   
-        } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+        /**************** And at last starting channel ******************/
+        startChannel(dinfo, ci, chName, capacity, game);
+    }
+    
+    private void startChannel(DatagramInfo dinfo, ClientInfo ci, String chName,
+                              int capacity, String game) throws IOException
+    {     
+        JSONObject res = emptyRes(dinfo.getId());
+        Set<String> names = channelNames.get(game);
+        if (names == null)
+        {
+            try {
+                res.put("type", "error");
+                res.put("desc", "Unknown game " + game);   
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, dinfo.getSender(), res);
         }
-        send(ds, dinfo.getSender(), res);
-        channelNames.add(chName);
+        else 
+        {
+            channels.put(ci.nick, new Channel(ci, chName, game, capacity));
+            try {
+                res.put("type", "channelaccepted");
+                res.put("name", chName);   
+            } catch (JSONException ex) {
+                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            send(ds, dinfo.getSender(), res);
+            names.add(chName);        
+        }
     }
 
     private void handleExit(DatagramInfo dinfo) throws IOException
@@ -491,7 +553,8 @@ public class BiuroMatr implements Runnable
         ClientInfo ci = addrs.get(dinfo.getSender());
         leaveChannel(ci.nick); //if client wasn't in channel it has no effect.
         try {
-            res.put("channels", channelNames);
+            String game = dinfo.getJson().getString("game");
+            res.put("channels", channelNames.get(game));
         } catch (JSONException ex) {
             Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -501,12 +564,30 @@ public class BiuroMatr implements Runnable
     private void handleSendChannels(DatagramInfo dinfo) throws IOException
     {        
         JSONObject res = makeRes("channellist", dinfo.getId());
+        
         try {
-            res.put("channels", channelNames);
+            Set<String> names = null;
+            String game = "";
+            try {
+                game = dinfo.getJson().getString("game");
+                names = channelNames.get(game);
+                if (names == null) throw new NullPointerException();
+            } catch (JSONException ex) {
+                res.put("error", channelNames);
+                res.put("desc", "Request 'channellist' should contain field 'game'");
+                send(ds, dinfo.getSender(), res);
+                return ;
+            } catch (NullPointerException ex) {
+                res.put("error", channelNames);
+                res.put("desc", "Unknown game " + game);
+                send(ds, dinfo.getSender(), res);
+                return ;
+            }
+            res.put("channels", names);
+            send(ds, dinfo.getSender(), res);
         } catch (JSONException ex) {
             Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
         }
-        send(ds, dinfo.getSender(), res);
     }
     
     private void handleJoin(DatagramInfo dinfo) throws IOException
@@ -730,7 +811,7 @@ public class BiuroMatr implements Runnable
      * String containing nicks of clients who opened chat channels. It is
      * updated every time when any change happens.
      */
-    private Set<String> channelNames = new TreeSet<>();
+    private Map<String, Set<String>> channelNames = new TreeMap<>();
     
     /**
      * Map containing nicks of clients and channels in which they are.
@@ -763,7 +844,7 @@ class ClientInfo
 
 class Channel
 {
-    Channel(ClientInfo host, String name, int capacity)
+    Channel(ClientInfo host, String name, String game, int capacity)
     {
         this.host = host;
         this.name = name;
@@ -789,5 +870,6 @@ class Channel
     ClientInfo host;
     Set<ClientInfo> guests;
     String name; 
+    String game;
     int capacity;
 }

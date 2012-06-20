@@ -19,7 +19,7 @@ import javax.swing.JTextField;
  */
 public class PanelDisc extends JPanel
 {
-    PanelDisc(ClientFrame parent)
+    PanelDisc(GameInterface parent)
     {
         this.parent = parent;
         
@@ -43,11 +43,11 @@ public class PanelDisc extends JPanel
                     int portn = Integer.parseInt(port.getText());
                     PanelDisc.this.parent.connect(ia, portn, nick.getText());
                 } catch (UnknownHostException ex) {
-                    JOptionPane.showMessageDialog(PanelDisc.this.parent,
+                    JOptionPane.showMessageDialog(null,
                             ex.getMessage(),
                             "Error", JOptionPane.ERROR_MESSAGE);
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(PanelDisc.this.parent, 
+                    JOptionPane.showMessageDialog(null, 
                             "Not a valid port number.",
                             "Error", JOptionPane.ERROR_MESSAGE);                    
                 }
@@ -55,7 +55,7 @@ public class PanelDisc extends JPanel
         });
     }
     
-    private ClientFrame parent;
+    private GameInterface parent;
     private JTextField addr = new JTextField("localhost"),
                port = new JTextField("6666"),
                nick = new JTextField("");
