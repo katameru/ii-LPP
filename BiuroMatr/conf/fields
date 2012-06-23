@@ -1,0 +1,41 @@
+name;type;subject;cost;x;y
+Start;Empty;;;460;275
+Pochodne;Topic;Analiza matematyczna;120;410;285
+Szansa;BChance;;;370;285
+Całki;Topic;Analiza matematyczna;160;330;285
+Egzamin!;Loss;;400;290;285
+ASK;Other;Półobowiązek;400;250;285
+Rachunek predykatów;Topic;Logika;200;210;285
+Szansa;RChance;;;165;285
+Teoria mocy;Topic;Logika;200;125;285
+Relacje;Topic;Logika;240;85;285
+Ryjec;Prison;;;30;275
+Przestrzenie liniowe;Topic;Algebra;280;25;235
+Kurs Javy;Other;Kurs;300;30;212
+Teoria grup;Topic;Algebra;280;30;189
+Teoria podzielności;Topic;Algebra;320;30;165
+Systemy operacyjne;Other;Półobowiązek;400;30;143
+Semantyki;Topic;Programowanie;360;30;121
+Szansa;BChance;;;30;97
+Prolog;Topic;Programowanie;360;30;75
+Haskell;Topic;Programowanie;400;25;53
+Okienko;Empty;;;30;20
+Rozkłady prob.;Topic;RPiS;440;85;15
+Szansa;RChance;;;125;15
+Estymacja;Topic;RPiS;440;165;15
+MNK;Topic;RPiS;480;205;15
+Sieci komputerowe;Other;Półobowiązek;400;245;15
+Kombinatoryka;Topic;Matematyka Dyskretna;520;285;15
+Anihilatory;Topic;Matematyka Dyskretna;520;325;15
+Kurs C++;Other;Kurs;300;366;15
+Teoria grafów;Topic;Matematyka Dyskretna;560;407;15
+Idziesz do ryjca!;ToPrison;;;460;25
+Programowanie dynamiczne;Topic;AiSD;600;470;52
+Haszowanie;Topic;AiSD;600;655;75
+Szansa;BChance;;;655;98
+RBT,AVL i B-drzewa;Topic;AiSD;640;655;120
+Bazy danych;Other;Półobowiązek;80;655;143
+Szansa;RChance;;;655;166
+Błędy numeryczne;Topic;Analiza numeryczna;700;655;189
+Kolokwium!;Loss;;200;655;212
+Interpolacja;Topic;Analiza numeryczna;800;655;235
