@@ -155,8 +155,8 @@ public class BiuroMatr implements Runnable
     private void deleteDeadClients()
     {
         //System.out.println("Dead check: " + System.currentTimeMillis());
-        List <String> deadNicks = new ArrayList<>();
-        List <AddrInfo> deadAddrs = new ArrayList<>();
+        List <String> deadNicks = new ArrayList<String>();
+        List <AddrInfo> deadAddrs = new ArrayList<AddrInfo>();
         for (ClientInfo ci: clients.values()) {
             if (ci.dead)
             {
@@ -815,13 +815,13 @@ public class BiuroMatr implements Runnable
      * Map containing nicknames of clients with their addresses. Value set
      * is the same as in addrs.
      */
-    private Map <String, ClientInfo> clients = new TreeMap<>();
+    private Map <String, ClientInfo> clients = new TreeMap<String, ClientInfo>();
     
     /**
      * Map with all addresses of clients connected to server. Value set is the 
      * same as in clients.
      */   
-    private Map <AddrInfo, ClientInfo> addrs = new TreeMap<>();
+    private Map <AddrInfo, ClientInfo> addrs = new TreeMap<AddrInfo, ClientInfo>();
     
     /**
      * Capacity of the buffer of data in datagram packets.
@@ -837,16 +837,16 @@ public class BiuroMatr implements Runnable
      * String containing nicks of clients who opened chat channels. It is
      * updated every time when any change happens.
      */
-    private Map<String, Set<String>> channelNames = new TreeMap<>();
+    private Map<String, Set<String>> channelNames = new TreeMap<String, Set<String>>();
     
     /**
      * Map containing nicks of clients and channels in which they are.
      */
-    private TreeMap <String, Channel> channels = new TreeMap<>();
+    private TreeMap <String, Channel> channels = new TreeMap<String, Channel>();
     
     private Receiver receiver;
     
-    private Map<String, Handler> handlers = new TreeMap<>();
+    private Map<String, Handler> handlers = new TreeMap<String, Handler>();
     private Handler resHandler;
 }
 /**
@@ -876,7 +876,7 @@ class Channel
         this.name = name;
         this.game = game;
         this.capacity = capacity;
-        this.guests = new HashSet<>();
+        this.guests = new HashSet<ClientInfo>();
     }
     
     boolean isFull()

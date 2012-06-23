@@ -164,7 +164,7 @@ public class Utils
         return channels;
     }
 
-    public static boolean validateMessage(JSONObject msg)
+   /* public static boolean validateMessage(JSONObject msg)
     {
         try {
             msg.getBoolean("res");
@@ -226,5 +226,5 @@ public class Utils
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
-    }
+    }*/
 }

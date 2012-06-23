@@ -10,7 +10,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -419,7 +418,7 @@ public class Client
             address = dinfo.getJson().getString("address");
             port = dinfo.getJson().getString("port");
             ai = new AddrInfo(InetAddress.getByName(address), Integer.parseInt(port));
-        } catch (JSONException | UnknownHostException | NumberFormatException ex) {
+        } catch (Exception ex) {
             System.out.println("Invalid datagram with address received.");
             return ;
         }
@@ -611,7 +610,7 @@ public class Client
                 JSONObject json = makeJSON("exit");
                 json.put("game", gameName);
                 toServer.send(json, resHandler);
-            } catch (JSONException | ConnectionException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }   
             resetConnections();   
@@ -885,11 +884,11 @@ public class Client
     /**
      * Map guest_nick -> guest_info
      */
-    private TreeMap<String, ClientInfo> guests = new TreeMap<>();
+    private TreeMap<String, ClientInfo> guests = new TreeMap<String, ClientInfo>();
     /**
      * Map guest_address -> guest_info
      */
-    private TreeMap<AddrInfo, ClientInfo> addrs = new TreeMap<>();
+    private TreeMap<AddrInfo, ClientInfo> addrs = new TreeMap<AddrInfo, ClientInfo>();
     
     /**
      * When state is CHAT then iamhost field indicates if this client is host
@@ -909,7 +908,7 @@ public class Client
     /**
      * Map communicate -> Handler.
      */
-    protected Map<String, Handler> handlers = new TreeMap<>();
+    protected Map<String, Handler> handlers = new TreeMap<String, Handler>();
     
     /**
      * Response handler. It is used by send method of toClient and toServer.

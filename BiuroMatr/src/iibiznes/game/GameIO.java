@@ -2,7 +2,6 @@
 package iibiznes.game;
 
 import biuromatr.Client;
-import biuromatr.ConnectionException;
 import biuromatr.Utils;
 import java.awt.Color;
 import java.util.logging.Level;
@@ -12,7 +11,6 @@ import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -64,7 +62,7 @@ public class GameIO
             json.put("mssg", mssg);
             json.put("playerNr", (p == null ? -1 : p.id));
             client.sendData(json);
-        } catch (JSONException | ConnectionException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         } 
     }

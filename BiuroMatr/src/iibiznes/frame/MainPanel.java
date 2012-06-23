@@ -51,6 +51,7 @@ public class MainPanel extends JPanel
         add(pdisc);
     }
     
+    @Override
     public void connect(InetAddress ia, int port, final String nick)
     {
         client = new Client(ia, port, "IIBiznes");
@@ -86,11 +87,13 @@ public class MainPanel extends JPanel
         waitd.setVisible(true);        
     }
     
+    @Override
     public void disconnect()
     {
         client.close();
     }
 
+    @Override
     public void startChannel()
     { 
         final JDialog waitd = new WaitDialog(this);
@@ -118,6 +121,7 @@ public class MainPanel extends JPanel
         waitd.setVisible(true);        
     }
 
+    @Override
     public void join(final String hostname)
     { 
         final JDialog waitd = new WaitDialog(this);
@@ -145,6 +149,7 @@ public class MainPanel extends JPanel
         waitd.setVisible(true);        
     }
 
+    @Override
     public void refreshChannels()
     { 
         final JDialog waitd = new WaitDialog(this);
@@ -172,6 +177,7 @@ public class MainPanel extends JPanel
         waitd.setVisible(true);        
     }
 
+    @Override
     public void sendChatMssg(final String text)
     {
         new SwingWorker<Void, Void>() {
@@ -198,6 +204,7 @@ public class MainPanel extends JPanel
         }.execute();
     }
     
+    @Override
     public void leaveGame()
     {
         final JDialog waitd = new WaitDialog(this);
@@ -291,7 +298,7 @@ public class MainPanel extends JPanel
                 json.put("subtype", "roll");
                 json.put("nick", client.getMyNick());
                 client.sendData(json);
-            } catch (JSONException | ConnectionException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 pgame.enableRoll(true);
             }
@@ -571,7 +578,7 @@ public class MainPanel extends JPanel
                 catch (ArrayIndexOutOfBoundsException ex) {}
             doc.insertString(doc.getLength(),
                     mssg + "\n", doc.getStyle(c.toString()));
-        } catch (JSONException  | BadLocationException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
