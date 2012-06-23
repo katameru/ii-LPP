@@ -3,6 +3,7 @@ package iibiznes.game;
 
 import iibiznes.fields.BoardInfo;
 import iibiznes.fields.FieldInfo;
+import iibiznes.frame.DisplayInfo;
 import iibiznes.game.cards.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -162,7 +163,7 @@ public class Game
         players = new Player[setts.players];
         for (int i = 0; i < players.length; ++i)
         {
-            players[i] = new Player(setts.names[i], setts.colors[i], setts.startCS);
+            players[i] = new Player(setts.names[i], setts.colors[i], setts.startCS, i);
         }
     }
     
@@ -242,6 +243,27 @@ public class Game
         if (nextPlayer == players.length) nextPlayer = 0;
         return p;
     }    
+    
+    public void updateDisplay(DisplayInfo di)
+    {
+        for (int i = 0; i < players.length; ++i)
+            di.CS[i] = players[i].getCS();
+        
+        for (int i = 0; i < players.length; ++i)
+            di.positions[i] = players[i].getPosition();
+        
+        for (int i = 0; i < fields.length; ++i)
+        {
+            try {
+                Buyable b = (Buyable) fields[i];
+                if (b.getOwner() == null)
+                    di.properties[i] = -1;
+                else di.properties[i] = b.getOwner().id;                
+            } catch (ClassCastException ex) {
+                di.properties[i] = -1;
+            }
+        }
+    }
     
     public static final int NOT_STARTED = 0, STARTED = 1, ENDED = 2;
     private int gameState = NOT_STARTED;

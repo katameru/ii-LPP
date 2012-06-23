@@ -262,14 +262,16 @@ public class SimpleChat extends JApplet implements PropertyChangeListener, GameI
                 add(pmenu);
                 pcurr = pmenu;                    
                 break;
-            case GAME:
+            case UNINIT:
                 pchat.clear();
                 add(pchat);
                 pcurr = pchat;
                 break;
+            case GAME:
+                System.err.println("SimpleChat nie ma trybu gry...");
         }    
-        Dimension d = getSize();
-        setSize(d.width+1, d.height+1);
+        revalidate();
+        repaint();
     }
     
     private void chatMssgReceived(Message mssg)

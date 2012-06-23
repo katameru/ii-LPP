@@ -265,6 +265,15 @@ public class Client
             }
         };
         handlers.put("gamedata", handler);
+        
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleStartGame(dinfo);
+            }
+        };
+        handlers.put("startgame", handler);
     }
     
     private void handleRequest(final DatagramInfo dinfo)
@@ -337,9 +346,9 @@ public class Client
     
     private void handleChannelAccepted(DatagramInfo dinfo)
     {
-        state = State.GAME;
+        state = State.UNINIT;
         iamhost = true;
-        pcs.firePropertyChange("state", State.MENU, State.GAME);
+        pcs.firePropertyChange("state", State.MENU, State.UNINIT);
         pcs.firePropertyChange("connected", false, true);
     }
     
@@ -383,9 +392,9 @@ public class Client
     private void handleJoinAccepted(DatagramInfo dinfo)
     {
         //First comes packet joinaccepted. After that should come address of host.
-        state = State.GAME;
+        state = State.UNINIT;
         iamhost = false;
-        pcs.firePropertyChange("state", State.MENU, State.GAME);
+        pcs.firePropertyChange("state", State.MENU, State.UNINIT);
     }
     
     private void handleAddress(DatagramInfo dinfo)
@@ -399,7 +408,8 @@ public class Client
          * will come 'joinaccepted' and we will make a use from next 'address'
          * packet (server sends few of them). 
          */
-        if (state != State.GAME)
+        
+        if (state != State.UNINIT)
             return ;
         confirm(dinfo);
         final String nick, address, port;
@@ -564,6 +574,13 @@ public class Client
     {
         confirm(dinfo);
         pcs.firePropertyChange("gamedata", null, dinfo.getJson());
+    }   
+    
+    private void handleStartGame(DatagramInfo dinfo)
+    {
+        confirm(dinfo);
+        state = State.GAME;
+        pcs.firePropertyChange("state", State.UNINIT, State.GAME);
     }
     
     private void confirm(DatagramInfo dinfo)
@@ -588,7 +605,7 @@ public class Client
     
     private void letKnowYouAreFree()
     {
-        if (state == State.GAME)
+        if (state == State.GAME || state == State.UNINIT)
         {
             try {
                 JSONObject json = makeJSON("exit");
@@ -667,6 +684,13 @@ public class Client
         toServer.send(json, resHandler);      
     }
     
+    /**
+     * Sends chat message. If it is invoked by host then mssg is sent to all
+     * his guests, else mssg is sent to host who will propagate it to other
+     * guests.
+     * @param mssg String with message.
+     * @throws ConnectionException 
+     */
     public void sendChatMssg(String mssg) throws ConnectionException
     {
         JSONObject json = makeJSON("chat");
@@ -685,6 +709,12 @@ public class Client
         else propagate(json, null);
     }
     
+    /**
+     * Sends data encapsulated in json object. If method is invoked by host
+     * then json is sent to all his guests. Otherwise it sent to host.
+     * @param json JSONObject with data.
+     * @throws ConnectionException 
+     */
     public void sendData(JSONObject json) throws ConnectionException
     {
         if (!iamhost)
@@ -694,6 +724,24 @@ public class Client
             hostInfo.toClient.send(json, resHandler);
         }
         else propagate(json, null);        
+    }
+    
+    /**
+     * Method is designated to be invoked by host. It sends a data in a 
+     * form of a JSONObject to guest with given nick. If it is invoked by 
+     * guest then it has no effect.
+     * @param json JSONObject with data.
+     * @param nick Nick of guest to which we are sending data.
+     */
+    public void sendData(final JSONObject json, String nick)
+    {
+        if (!iamhost) return;
+        final ClientInfo ci = guests.get(nick);
+        try {
+            ci.toClient.send(json, resHandler);
+        } catch (ConnectionException ex) {
+            ex.printStackTrace();
+        }
     }
     
     public void leaveChannel()
@@ -711,6 +759,22 @@ public class Client
         letKnowYouAreFree();
     }
     
+    public void startGame()
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject json = makeJSON("startgame");
+                    toServer.send(json, resHandler);
+                } catch (ConnectionException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }).start();
+        state = State.GAME;
+        pcs.firePropertyChange("state", State.UNINIT, State.GAME);
+    }
     
     public void addPropertyChangeListener(PropertyChangeListener pcl)
     {
@@ -776,6 +840,7 @@ public class Client
         else return addrs.containsKey(dinfo.getSender()) ||
                     dinfo.getSender().equals(serverAddr);
     }
+
         
     public enum State {
         DISC, MENU, UNINIT, GAME

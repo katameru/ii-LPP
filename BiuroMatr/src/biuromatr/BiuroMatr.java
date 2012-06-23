@@ -306,6 +306,21 @@ public class BiuroMatr implements Runnable
             }
         };
         handlers.put("join", handler);
+        
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                try
+                {
+                    handleStartGame(dinfo);
+                } catch (IOException ex)
+                {
+                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        handlers.put("startgame", handler);
     }    
   
     /**
@@ -667,8 +682,17 @@ public class BiuroMatr implements Runnable
             channels.put(guest.nick, ch);
             sendAddrToEachOther(guest, ch.host);
         }
-    } 
-    
+    }     
+
+    private void handleStartGame(DatagramInfo dinfo) throws IOException
+    {
+        JSONObject json = Utils.emptyRes(dinfo.getId());
+        Utils.send(ds, dinfo.getSender(), json);
+        ClientInfo ci = addrs.get(dinfo.getSender());
+        Channel ch = channels.get(ci.nick);
+        channelNames.get(ch.game).remove(ch.name);
+    }
+            
     /**
      * Sends each others addresses to host and client of given channel.
      * @param ch channel.

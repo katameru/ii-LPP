@@ -47,7 +47,7 @@ public class IIBiznesFrame extends JFrame
 
     IIBiznesFrame()
     {
-        setSize(400,500);
+        setSize(800,600);
         setTitle("II-Biznes");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());

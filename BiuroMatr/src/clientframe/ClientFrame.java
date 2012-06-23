@@ -4,7 +4,6 @@ package clientframe;
 import biuromatr.Message;
 import biuromatr.Client;
 import biuromatr.ConnectionException;
-import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.InetAddress;
@@ -276,14 +275,16 @@ public class ClientFrame extends JFrame implements PropertyChangeListener,
                 add(pmenu);
                 pcurr = pmenu;                    
                 break;
-            case GAME:
+            case UNINIT:
                 pchat.clear();
                 add(pchat);
                 pcurr = pchat;
                 break;
+            case GAME:
+                System.err.println("SimpleChat nie ma trybu gry...");
         }    
-        Dimension d = getSize();
-        setSize(d.width+1, d.height+1);
+        revalidate();
+        repaint();
     }
     
     private void chatMssgReceived(Message mssg)

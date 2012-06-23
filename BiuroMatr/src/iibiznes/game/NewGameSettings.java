@@ -57,7 +57,7 @@ public class NewGameSettings
         }
     }
     
-    public final String[] defColors = { "red", "blue", "green", "yellow", "violet"};
+    public static final String[] defColors = { "red", "blue", "green", "yellow", "violet"};
     public final int players;
     public final String[] names;
     public final Color[] colors;

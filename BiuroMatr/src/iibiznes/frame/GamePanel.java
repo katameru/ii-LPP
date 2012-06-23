@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import iibiznes.fields.BoardInfo;
+import iibiznes.game.NewGameSettings;
 import java.util.TreeMap;
 import javax.swing.JTabbedPane;
 import javax.swing.ImageIcon;
@@ -24,6 +25,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 /**
  *
@@ -41,7 +46,7 @@ public class GamePanel extends JPanel
     
     public void update()
     {
-        boardLabel.setIcon(new ImageIcon(drawBoard(di)) );
+        boardLabel.setIcon(new ImageIcon(drawBoard()));
         playerPanel.update();
     }
     
@@ -91,6 +96,20 @@ public class GamePanel extends JPanel
         comp.setSize(300,200);
         comp.setFont(new Font("Arial", Font.PLAIN, 10));
         //comp.setPreferredSize(new Dimension(250,200));
+        
+        /************** Adding style to diary **************************/        
+        StyledDocument doc = comp.getStyledDocument();
+        Style defStyle = StyleContext.getDefaultStyleContext().
+                        getStyle(StyleContext.DEFAULT_STYLE);
+        for (String colstr: NewGameSettings.defColors)
+        {
+            Color c = BoardInfo.colorForName(colstr);
+            Style s = doc.addStyle(c + "", defStyle);
+            StyleConstants.setForeground(s, c);
+        }
+        Style s = doc.addStyle(Color.WHITE + "", defStyle);
+        StyleConstants.setForeground(s, Color.WHITE);
+
         return comp;
     }
     
@@ -117,22 +136,24 @@ public class GamePanel extends JPanel
     private JPanel createControlPanel()
     {
         JPanel panel = new JPanel();
-        JButton roll = new JButton(new ImageIcon(BoardInfo.getDicesImg()));
-        roll.addActionListener(new ActionListener()
+        buttonRoll = new JButton(new ImageIcon(BoardInfo.getDicesImg()));
+        buttonRoll.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                mainPanel.rollTheDices();
+                mainPanel.rollTheDicesPressed();
+                buttonRoll.setEnabled(false);
             }
         });
-        panel.add(roll);
+        buttonRoll.setEnabled(false);
+        panel.add(buttonRoll);
      //   panel.setMinimumSize(new Dimension(100,150));
         return panel;
     }
     
     
-    private Image drawBoard(DisplayInfo di)
+    private Image drawBoard()
     {
         Image board = BoardInfo.getBoardImg();
         BufferedImage img = new BufferedImage(board.getWidth(null),
@@ -151,6 +172,7 @@ public class GamePanel extends JPanel
         for (int i = 0; i < di.players; ++i)
         {
             int pos = di.positions[i];
+            if (pos < 0) continue;
             if (map.get(pos) == null) {
                 ArrayList<Integer> list = new ArrayList<Integer>();
                 list.add(i);
@@ -175,6 +197,11 @@ public class GamePanel extends JPanel
             }
         }
     }
+
+    void enableRoll(boolean on)
+    {
+        buttonRoll.setEnabled(on);
+    }
     
  
     MainPanel mainPanel;
@@ -183,16 +210,5 @@ public class GamePanel extends JPanel
     PlayerPanel playerPanel;
     PanelChat pchat;
     JTextPane diary;
+    JButton buttonRoll;
 }
-
-/*  
-
-private void createGameIO(NewGameSettings setts)
-{
-    gameIO = new GameIO(this, diary);
-    gameIO.setGame(game);
-    game.setGameIO(gameIO);
-}
- 
-
-*/

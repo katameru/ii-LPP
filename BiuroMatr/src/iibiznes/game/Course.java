@@ -3,6 +3,7 @@ package iibiznes.game;
 
 import iibiznes.fields.FieldInfo;
 import java.awt.Color;
+import java.util.Random;
 
 /**
  *
@@ -19,10 +20,13 @@ public class Course extends Buyable
     @Override
     public int getCharge()
     {
-        String desc = "Opłata za pole " + fieldInfo.name + " zależna jest od"
+        //For simplicity i resign from rolling the dices to get a price.
+        //Instead it will be randomized without user participation.
+        /*String desc = "Opłata za pole " + fieldInfo.name + " zależna jest od"
                 + "liczby wyrzuconych oczek. Kulnij kostkami.";
-        Pair p = game.getGameIO().takeARoll(desc);
-        return 10 * owner.coursers() * (p.x + p.y);
+        Pair p = game.getGameIO().takeARoll(desc);*/
+        int x = 1 + r.nextInt(6), y = 1 + r.nextInt(6);
+        return 10 * owner.coursers() * (x + y);
     }
 
     @Override
@@ -40,4 +44,5 @@ public class Course extends Buyable
         return new Color(63,127,127);
     }
     
+    static Random r = new Random(System.currentTimeMillis());
 }

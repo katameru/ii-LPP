@@ -3,6 +3,8 @@ package iibiznes.frame;
 
 import iibiznes.fields.BoardInfo;
 import iibiznes.fields.FieldInfo;
+import iibiznes.fields.SubjectInfo;
+import java.awt.Color;
 import java.awt.Component;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -107,6 +109,7 @@ public class PlayerPanel extends JPanel
     {
         setBorder(BorderFactory.createLineBorder(di.myColor()));
         lblPlayer.setText(di.myNick());
+        lblPlayer.setForeground(di.myColor());
         CS.setText("" + di.myCS());
         adjustList();
     }
@@ -123,7 +126,8 @@ public class PlayerPanel extends JPanel
                 int i = (Integer) value;
                 FieldInfo fi = BoardInfo.getFields()[i];
                 JLabel lbl = new JLabel(fi.name);
-                lbl.setForeground( BoardInfo.topicToSubject(fi.name).color );
+                SubjectInfo si = BoardInfo.topicToSubject(fi.name);
+                lbl.setForeground( si == null ? Color.BLACK : si.color );
                 return lbl;
             }
         } );

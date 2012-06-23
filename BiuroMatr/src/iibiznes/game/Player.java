@@ -15,12 +15,12 @@ import java.util.List;
  */
 public class Player
 {
-    public Player(String name, Color color, int CS)
+    public Player(String name, Color color, int CS, int id)
     {
         this.name = name;
         this.color = color;
         this.CS = CS;
-        id = nextId++;
+        this.id = id;
         pcs = new PropertyChangeSupport(this);
     }
     
@@ -143,5 +143,4 @@ public class Player
     private int position = 0;
     private PropertyChangeSupport pcs;
     private ArrayList<Buyable> properties = new ArrayList<Buyable>();
-    private static int nextId = 0;
 }
