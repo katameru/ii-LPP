@@ -1,6 +1,7 @@
 
 package clientframe;
 
+import java.awt.Component;
 import javax.swing.JApplet;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -26,16 +27,24 @@ public class WaitDialog extends JDialog
         add(new JLabel("Please wait for a while", JLabel.CENTER));
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setToTheMiddle(applet);
-    }    
+    }
     
-    private void setToTheMiddle(JFrame parent)
+    public WaitDialog(Component comp)
+    {
+        super((JFrame) null, "Please wait.", true);
+        add(new JLabel("Please wait for a while", JLabel.CENTER));
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        setToTheMiddle(comp);
+    } 
+    
+    private void setToTheMiddle(Component comp)
     {
         int w = 200,
             h = 100,
-            px = parent.getLocation().x,
-            py = parent.getLocation().y,
-            ph = parent.getHeight(),
-            pw = parent.getWidth();
+            px = comp.getLocation().x,
+            py = comp.getLocation().y,
+            ph = comp.getHeight(),
+            pw = comp.getWidth();
         int x = px + (pw - w)/2,
             y = py + (ph - h)/2;
         setSize(w,h);
@@ -55,4 +64,5 @@ public class WaitDialog extends JDialog
         setSize(w,h);
         setLocation(x,y);
     }
+    
 }

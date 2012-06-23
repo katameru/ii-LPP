@@ -256,6 +256,15 @@ public class Client
             }
         };
         handlers.put("left", handler);
+        
+        handler = new Handler() {
+            @Override
+            public void handle(DatagramInfo dinfo)
+            {
+                handleGameData(dinfo);
+            }
+        };
+        handlers.put("gamedata", handler);
     }
     
     private void handleRequest(final DatagramInfo dinfo)
@@ -328,9 +337,9 @@ public class Client
     
     private void handleChannelAccepted(DatagramInfo dinfo)
     {
-        state = State.CHAT;
+        state = State.GAME;
         iamhost = true;
-        pcs.firePropertyChange("state", State.MENU, State.CHAT);
+        pcs.firePropertyChange("state", State.MENU, State.GAME);
         pcs.firePropertyChange("connected", false, true);
     }
     
@@ -374,9 +383,9 @@ public class Client
     private void handleJoinAccepted(DatagramInfo dinfo)
     {
         //First comes packet joinaccepted. After that should come address of host.
-        state = State.CHAT;
+        state = State.GAME;
         iamhost = false;
-        pcs.firePropertyChange("state", State.MENU, State.CHAT);
+        pcs.firePropertyChange("state", State.MENU, State.GAME);
     }
     
     private void handleAddress(DatagramInfo dinfo)
@@ -390,11 +399,11 @@ public class Client
          * will come 'joinaccepted' and we will make a use from next 'address'
          * packet (server sends few of them). 
          */
-        if (state != State.CHAT)
+        if (state != State.GAME)
             return ;
         confirm(dinfo);
-        String nick, address, port;
-        AddrInfo ai;  
+        final String nick, address, port;
+        final AddrInfo ai;  
         try {
             nick = dinfo.getJson().getString("nick");
             address = dinfo.getJson().getString("address");
@@ -407,36 +416,44 @@ public class Client
               
         if (iamhost)
         {
-            try {
-                ClientInfo ci = new ClientInfo(ai, nick, receiver);
-                guests.put(nick, ci);
-                addrs.put(ai, ci);
-                JSONObject json = makeJSON("holepunch");
-                ci.toClient.send(json, resHandler);
-            } catch (ConnectionException ex) {
-                guests.remove(nick);
-                addrs.remove(ai);
-                return ;
-            }            
-            try {
-                JSONObject json = makeJSON("joined");
-                json.put("nick", nick);
-                propagate(json, null);
-            } catch (JSONException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            pcs.firePropertyChange("joined", null, nick);
+            final ClientInfo ci = new ClientInfo(ai, nick, receiver);
+            guests.put(nick, ci);
+            addrs.put(ai, ci);
+            final JSONObject json = makeJSON("holepunch");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        ci.toClient.send(json, resHandler);
+                        JSONObject json2 = makeJSON("joined");
+                        json2.put("nick", nick);
+                        propagate(json2, null);
+                        pcs.firePropertyChange("joined", null, nick);
+                    } catch (ConnectionException ex) {
+                        ex.printStackTrace();
+                        guests.remove(nick);
+                        addrs.remove(ai);
+                    } catch (JSONException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }).start();    
         }
         else
         {         
-            try {
-                hostInfo = new ClientInfo(ai, nick, receiver);
-                JSONObject json = makeJSON("holepunch");
-                hostInfo.toClient.send(json, resHandler);
-                pcs.firePropertyChange("connected", false, true);
-            } catch (ConnectionException ex) {
-                hostInfo = null;
-            }
+            hostInfo = new ClientInfo(ai, nick, receiver);
+            final JSONObject json = makeJSON("holepunch");
+            new Thread( new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        hostInfo.toClient.send(json, resHandler);
+                    } catch (ConnectionException ex) {
+                        ex.printStackTrace();
+                        hostInfo = null;
+                    }
+                }
+            }).start();            
         }
     }
     
@@ -480,7 +497,7 @@ public class Client
     
     private void handleICanHearYou(DatagramInfo dinfo)
     {
-        //we do nothing, it just means our holepunch got through
+        pcs.firePropertyChange("connected", false, true);
     }
     
     private void handleChat(DatagramInfo dinfo)
@@ -541,8 +558,14 @@ public class Client
         } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }   
-        
+    }       
+    
+    private void handleGameData(DatagramInfo dinfo)
+    {
+        confirm(dinfo);
+        pcs.firePropertyChange("gamedata", null, dinfo.getJson());
+    }
+    
     private void confirm(DatagramInfo dinfo)
     {
         try {
@@ -565,13 +588,13 @@ public class Client
     
     private void letKnowYouAreFree()
     {
-        if (state == State.CHAT)
+        if (state == State.GAME)
         {
             try {
                 JSONObject json = makeJSON("exit");
                 json.put("game", gameName);
                 toServer.send(json, resHandler);
-            } catch (Exception ex) {
+            } catch (JSONException | ConnectionException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }   
             resetConnections();   
@@ -606,14 +629,14 @@ public class Client
         state = State.DISC;
     }
     
-    public void startChannel(String chName) throws ConnectionException
+    public void startChannel(String chName, int capacity) throws ConnectionException
     {
         if (state != State.MENU) return ;
         JSONObject json = makeJSON("newchannel");
         try {
             json.put("name", chName);
             json.put("game", gameName);
-            json.put("capacity", "32");
+            json.put("capacity", capacity);
         } catch (JSONException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -662,6 +685,17 @@ public class Client
         else propagate(json, null);
     }
     
+    public void sendData(JSONObject json) throws ConnectionException
+    {
+        if (!iamhost)
+        {
+            if (hostInfo == null)
+                throw new ConnectionException("You don't have connection to host.");
+            hostInfo.toClient.send(json, resHandler);
+        }
+        else propagate(json, null);        
+    }
+    
     public void leaveChannel()
     {
         if (!iamhost)
@@ -696,6 +730,15 @@ public class Client
     public boolean isHost()
     {
         return iamhost;
+    }
+    
+    public String[] getGuestNicks()
+    {
+        Object[] array = guests.keySet().toArray();
+        String[] res = new String[array.length];
+        for(int i = 0; i < array.length; ++i)
+            res[i] = array[i].toString();
+        return res;
     }
 
     private void propagate(final JSONObject json, AddrInfo from)
@@ -735,13 +778,13 @@ public class Client
     }
         
     public enum State {
-        UNINIT, DISC, MENU, CHAT
+        DISC, MENU, UNINIT, GAME
     };
     
     /**
      * Current state of client.
      */
-    private State state = State.UNINIT;
+    private State state = State.DISC;
     
     /**
      * Socket for sending and receiving datagrams.

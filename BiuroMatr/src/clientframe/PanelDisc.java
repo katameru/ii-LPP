@@ -19,7 +19,7 @@ import javax.swing.JTextField;
  */
 public class PanelDisc extends JPanel
 {
-    PanelDisc(GameInterface parent)
+    public PanelDisc(GameInterface parent)
     {
         this.parent = parent;
         

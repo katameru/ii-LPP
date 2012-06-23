@@ -44,10 +44,63 @@ public class FieldInfo
         return new FieldInfo(tokens[0],tokens[1],tokens[2],price, x, y);
     }
     
+    public String chargeDesc()
+    {
+        if (type.equalsIgnoreCase("Topic"))
+            return topicChargeDesc();
+        else if (type.equalsIgnoreCase("Other"))
+        {
+            if (subject.equalsIgnoreCase("Kurs"))
+                return courseChargeDesc();
+            else return halfDutyChargeDesc();
+        }
+        else return "Field free of charge";
+    }
+    
+    private String topicChargeDesc()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Temat bez zadań domowych: ")
+                .append(BoardInfo.getCharges(name)[0])
+                .append("\n").append("(Gdy gracz posiada wszystkie tematy z"
+                + " danego przedmiotu opłata jest liczona podwójnie)\n")
+                .append("Z jednym zadaniem: ")
+                .append(BoardInfo.getCharges(name)[1])
+                .append("\n").append("Z dwoma zadaniami: ")
+                .append(BoardInfo.getCharges(name)[2])
+                .append("\n").append("Z trzema zadaniami: ")
+                .append(BoardInfo.getCharges(name)[3])
+                .append("\n").append("Z czterema zadaniami: ")
+                .append(BoardInfo.getCharges(name)[4])
+                .append("\n").append("Z projektem: ")
+                .append(BoardInfo.getCharges(name)[5]);
+        return sb.toString();
+    }
+
+    private String courseChargeDesc()
+    {
+        return  "Gracz stający na polu kula dwiema kostkami.\n"
+                + "Opłata wynosi dziesięciokrotność sumy oczek.\n"
+                + "Gdy właściciel pola posiada zarówno Kurs Javy i Kurs C++,"
+                + "to opłata jest liczona podwójnie.";     
+    }
+
+    private String halfDutyChargeDesc()
+    {        
+        StringBuilder sb = new StringBuilder();
+        sb.append("W przypadku gdy gracz posiada:\n")
+          .append("  - 1 półobowiązek -- 100CS\n")
+          .append("  - 2 półobowiązki -- 200CS\n")
+          .append("  - 3 półobowiązki -- 300CS\n")
+          .append("  - 4 półobowiązki -- 400CS\n");
+        return sb.toString();
+    }
+    
     public final String name;
     public final String type;
     public final String subject;
     public final int price;
     public final int midX;
     public final int midY;
+
 }

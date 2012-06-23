@@ -1,13 +1,9 @@
 
 package iibiznes.frame;
 
-import iibiznes.game.Buyable;
-import iibiznes.game.Field;
-import iibiznes.game.Game;
-import iibiznes.game.Player;
+import iibiznes.fields.BoardInfo;
+import iibiznes.fields.FieldInfo;
 import java.awt.Component;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
@@ -19,12 +15,11 @@ import javax.swing.ListCellRenderer;
  *
  * @author grzes
  */
-public class PlayerPanel extends JPanel implements PropertyChangeListener
+public class PlayerPanel extends JPanel
 {
-    PlayerPanel(Player player, Game game)
+    PlayerPanel(DisplayInfo di)
     {
-        this.player = player;
-        this.game = game;
+        this.di = di;
         initComponents();
         myInit();
     }
@@ -76,51 +71,43 @@ public class PlayerPanel extends JPanel implements PropertyChangeListener
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lblPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblPos, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(CS))))
-                .addGap(14, 14, 14)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(80, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)))
+                        .addComponent(CS, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addComponent(lblPos, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)))
+            .addComponent(lblPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                .addComponent(lblPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(CS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(lblPos, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(145, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(CS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(lblPos, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void myInit()
     {
-        setBorder(BorderFactory.createLineBorder(player.getColor()));
-        lblPlayer.setText(player.getName());
-        CS.setText("" + player.getCS());
+        setBorder(BorderFactory.createLineBorder(di.myColor()));
+        lblPlayer.setText(di.myNick());
+        CS.setText("" + di.myCS());
         adjustList();
     }
     
@@ -133,40 +120,36 @@ public class PlayerPanel extends JPanel implements PropertyChangeListener
                     JList list, Object value, int index,
                     boolean isSelected, boolean cellHasFocus)
             {
-                Buyable b = (Buyable) value;
-                JLabel lbl = new JLabel(b.getFieldInfo().name);
-                lbl.setForeground(b.getColor());
+                int i = (Integer) value;
+                FieldInfo fi = BoardInfo.getFields()[i];
+                JLabel lbl = new JLabel(fi.name);
+                lbl.setForeground( BoardInfo.topicToSubject(fi.name).color );
                 return lbl;
             }
         } );
     }
     
-    @Override
-    public void propertyChange(PropertyChangeEvent evt)
+    public void update()
     {
-        if (evt.getPropertyName().equalsIgnoreCase("NewProperty"))
+        /******* UPDATE PROPERITES ***************************/
+        model.removeAllElements();
+        for (int i: di.myProperties())
         {
-            model.removeAllElements();
-            for (Buyable b: player.getProperties())
-            {
-                model.addElement(b);
-            }
+            model.addElement(i);
         }
-        else if (evt.getPropertyName().equalsIgnoreCase("CS"))
-        {
-            CS.setText(player.getCS() + "");
+                
+        /******* UPDATE CS ***************************/
+        CS.setText(di.myCS() + "");
+            
+        /******* UPDATE POSITION ***************************/
+        try {
+            int pos = di.myPositioin();
+            FieldInfo fi = BoardInfo.getFields()[pos];
+            lblPos.setText((pos+1) + ". " + fi.name);
+        } catch (Exception ex) {
+            lblPos.setText("???");                
         }
-        else if (evt.getPropertyName().equalsIgnoreCase("Position"))
-        {
-            try {
-                int pos = Integer.parseInt(evt.getNewValue() + "");
-                Field field = game.getFields()[pos];
-                lblPos.setText((pos+1) +
-                        ". " + field.getFieldInfo().name);
-            } catch (Exception ex) {
-                lblPos.setText("???");                
-            }
-        }
+        
         repaint();
     }
     
@@ -182,7 +165,6 @@ public class PlayerPanel extends JPanel implements PropertyChangeListener
     private javax.swing.JList listProp;
     // End of variables declaration//GEN-END:variables
 
-    Player player;
+    DisplayInfo di;
     DefaultListModel model = new DefaultListModel();
-    Game game;
 }

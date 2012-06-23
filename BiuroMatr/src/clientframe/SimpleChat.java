@@ -44,7 +44,7 @@ public class SimpleChat extends JApplet implements PropertyChangeListener, GameI
         try {
             client.init();
         } catch (SocketException ex) {
-            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SimpleChat.class.getName()).log(Level.SEVERE, null, ex);
         }
         client.addPropertyChangeListener(this);
         
@@ -87,7 +87,7 @@ public class SimpleChat extends JApplet implements PropertyChangeListener, GameI
             protected Void doInBackground()
             {
                 try {
-                    client.startChannel(client.getMyNick());
+                    client.startChannel(client.getMyNick(), 32);
                 } catch (ConnectionException ex) {
                     JOptionPane.showMessageDialog(SimpleChat.this,
                             "Could not contact server.",
@@ -228,7 +228,7 @@ public class SimpleChat extends JApplet implements PropertyChangeListener, GameI
         else if ("problem".equals(evt.getPropertyName()))
         {
             JOptionPane.showMessageDialog(this, evt.getNewValue().toString(),
-                    "ClientFrame", JOptionPane.INFORMATION_MESSAGE);
+                    "SimpleChat", JOptionPane.INFORMATION_MESSAGE);
         }
         else if ("channellist".equals(evt.getPropertyName()))
         {
@@ -262,7 +262,7 @@ public class SimpleChat extends JApplet implements PropertyChangeListener, GameI
                 add(pmenu);
                 pcurr = pmenu;                    
                 break;
-            case CHAT:
+            case GAME:
                 pchat.clear();
                 add(pchat);
                 pcurr = pchat;

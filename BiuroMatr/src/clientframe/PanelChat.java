@@ -88,17 +88,17 @@ public class PanelChat extends JPanel
         }
     }
     
-    void clear()
+    public void clear()
     {
         area.setText("");
     }
     
-    void append(String text)
+    public void append(String text)
     {
         area.append(text + "\n");
     }
     
-    void sendEnabled(boolean on)
+    public void sendEnabled(boolean on)
     {
         bttnSend.setEnabled(on);
     }

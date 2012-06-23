@@ -78,7 +78,7 @@ public class PanelMenu extends JPanel
         return val == null ? null : val.toString();
     }
     
-    void setHosts(String[] names)
+    public void setHosts(String[] names)
     {
         hosts.setListData(names);
     }

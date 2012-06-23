@@ -12,8 +12,6 @@ package iibiznes.frame;
 
 import iibiznes.fields.BoardInfo;
 import iibiznes.fields.FieldInfo;
-import iibiznes.game.Field;
-import iibiznes.game.Game;
 import java.awt.Color;
 
 /**
@@ -24,9 +22,8 @@ public class ChargesForm extends javax.swing.JPanel
 {
 
     /** Creates new form ChargesForm */
-    public ChargesForm(Game game)
+    public ChargesForm()
     {
-        this.game = game;
         initComponents();
         setEditorPane();
         fillCombo();
@@ -52,7 +49,7 @@ public class ChargesForm extends javax.swing.JPanel
             }
         });
 
-        lblTopic.setFont(new java.awt.Font("Cantarell", 1, 24)); // NOI18N
+        lblTopic.setFont(new java.awt.Font("Cantarell", 1, 18)); // NOI18N
         lblTopic.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTopic.setText("Topic");
 
@@ -64,19 +61,18 @@ public class ChargesForm extends javax.swing.JPanel
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(comboTopics, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(3, 3, 3)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)
-                    .addComponent(lblTopic, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)))
+                .addGap(4, 4, 4)
+                .addComponent(lblTopic, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(comboTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblTopic, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -112,37 +108,36 @@ public class ChargesForm extends javax.swing.JPanel
     private void choice()
     {
         String topic = comboTopics.getSelectedItem().toString();
-        Field[] fields = game.getFields();
-        Field field = null;
+        FieldInfo[] fields = BoardInfo.getFields();
+        FieldInfo fi = null;
         for (int i = 0; i < fields.length; ++i)
         {
-            if (fields[i].getFieldInfo().name.equals(topic))
+            if (fields[i].name.equalsIgnoreCase(topic))
             {
-                field = fields[i];
+                fi = fields[i];
                 break;
             }
         }
-        if (field == null)
+        if (fi == null)
         {
             System.err.println("No such topic \"" + topic + "\".");
         }
-        setContent(field);
+        setContent(fi);
     }
     
-    private void setContent(Field field)
+    private void setContent(FieldInfo fi)
     {
-        if (field == null)
+        if (fi == null)
         {
             editor.setText("");
             lblTopic.setText("");    
             return ;
         }
-        editor.setText(field.getDescription());
-        lblTopic.setText(field.getFieldInfo().name);
-        if (field.getFieldInfo().type.equalsIgnoreCase("topic"))
-            lblTopic.setForeground(BoardInfo.topicToSubject(field.getFieldInfo().name).color);
+        editor.setText(fi.chargeDesc());
+        lblTopic.setText(fi.name);
+        if (fi.type.equalsIgnoreCase("topic"))
+            lblTopic.setForeground(BoardInfo.topicToSubject(fi.name).color);
         else lblTopic.setForeground(Color.DARK_GRAY);
     }
     
-    Game game;
 }

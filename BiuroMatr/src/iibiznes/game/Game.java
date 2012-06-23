@@ -4,14 +4,9 @@ package iibiznes.game;
 import iibiznes.fields.BoardInfo;
 import iibiznes.fields.FieldInfo;
 import iibiznes.game.cards.*;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  *
@@ -61,17 +56,6 @@ public class Game
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
         pcs.addPropertyChangeListener(listener);
-    }
-    
-    public Image drawBoard()
-    {
-        Image board = BoardInfo.getBoardImg();
-        BufferedImage img = new BufferedImage(board.getWidth(null),
-                board.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D gr = img.createGraphics();
-        gr.drawImage(board, 0, 0, null);
-        drawPlayers(gr);
-        return img;
     }
 
     public int getGameState()
@@ -171,37 +155,7 @@ public class Game
         return winner;
     }
     
-    private void drawPlayers(Graphics2D gr)
-    {
-        //map position -> all_players_at_this_position
-        TreeMap<Integer, ArrayList<Player>> map = 
-                new TreeMap<Integer, ArrayList<Player>>();
-        for (Player pl: players)
-        {
-            if (map.get(pl.getPosition()) == null) {
-                ArrayList<Player> list = new ArrayList<Player>();
-                list.add(pl);
-                map.put(pl.getPosition(), list);
-            }
-            else map.get(pl.getPosition()).add(pl);
-        }
-        for (Map.Entry<Integer, ArrayList<Player>> e: map.entrySet())
-        {
-            int pos = e.getKey();
-            ArrayList<Player> list = e.getValue();
-            int R = 10, r = 5, midX = fields[pos].fieldInfo.midX,
-                    midY = fields[pos].fieldInfo.midY;
-            double angle = 0;
-            for (Player p: list)
-            {
-                int x = (int) (midX + R*Math.cos(angle));
-                int y = (int) (midY + R*Math.sin(angle));
-                gr.setColor(p.color);
-                gr.fillOval(x-r,y-r,2*r,2*r);
-                angle += 2*Math.PI/list.size();
-            }
-        }
-    }
+    
     
     private void makePlayers(NewGameSettings setts)
     {
@@ -287,8 +241,7 @@ public class Game
         Player p = players[nextPlayer++];
         if (nextPlayer == players.length) nextPlayer = 0;
         return p;
-    }
-    
+    }    
     
     public static final int NOT_STARTED = 0, STARTED = 1, ENDED = 2;
     private int gameState = NOT_STARTED;

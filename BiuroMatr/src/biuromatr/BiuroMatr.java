@@ -98,6 +98,7 @@ public class BiuroMatr implements Runnable
     private void initGameChannels()
     {
         channelNames.put("SimpleChat", new TreeSet<String>());
+        channelNames.put("IIBiznes", new TreeSet<String>());
     }
     
     /**
@@ -746,7 +747,8 @@ public class BiuroMatr implements Runnable
     private void closeChannel(Channel ch) throws IOException
     {  
         channels.remove(ch.host.nick);
-        channelNames.remove(ch.name);
+        Set<String> names = channelNames.get(ch.game);
+        names.remove(ch.name);
         for(ClientInfo guest : ch.guests)
         {
             channels.remove(guest.nick);
@@ -848,6 +850,7 @@ class Channel
     {
         this.host = host;
         this.name = name;
+        this.game = game;
         this.capacity = capacity;
         this.guests = new HashSet<>();
     }
