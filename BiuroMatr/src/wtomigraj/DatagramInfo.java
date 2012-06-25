@@ -12,6 +12,11 @@ import org.json.JSONObject;
  */
 public class DatagramInfo
 {
+    /**
+     * Extracts data from datagram and creates a DatagramInfo object.
+     * @param dp
+     * @throws InvalidDataException 
+     */
     public DatagramInfo (DatagramPacket dp) throws InvalidDataException
     {
         sender = new AddrInfo(dp.getAddress(), dp.getPort());

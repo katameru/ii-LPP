@@ -24,9 +24,10 @@ import org.json.JSONObject;
 public class Client
 {
     /**
-     * Constructs a client.
+     *  Constructs a client.
      * @param serverIA address of server.
-     * @param port servers port.
+     * @param port port on which server listens.
+     * @param gameName name of game we want to play.
      */
     public Client(InetAddress serverIA, int port, String gameName)
     {        
@@ -35,6 +36,10 @@ public class Client
         this.gameName = gameName;
     }
     
+    /**
+     * Inits fields necessary for Client to work.
+     * @throws SocketException when user doesn't have right to create a socket.
+     */
     public void init() throws SocketException
     {
         ds = new DatagramSocket();        
@@ -58,7 +63,7 @@ public class Client
         pcs.firePropertyChange("state", State.UNINIT, State.DISC);
     }
     
-    protected void initHandlers()
+    private void initHandlers()
     {
         if (hInit) return ;
         hInit = true;
@@ -644,6 +649,9 @@ public class Client
         toServer.send(json, resHandler);
     }
     
+    /**
+     * Closes communication socket and turn to state DISC.
+     */
     public void close()
     {
         if (state != State.MENU) return ;
@@ -652,6 +660,12 @@ public class Client
         state = State.DISC;
     }
     
+    /**
+     * Sends to server request to start new channel.
+     * @param chName channel name.
+     * @param capacity capacity of channel.
+     * @throws ConnectionException when contacting server failed.
+     */
     public void startChannel(String chName, int capacity) throws ConnectionException
     {
         if (state != State.MENU) return ;
@@ -666,6 +680,11 @@ public class Client
         toServer.send(json, resHandler);
     }
     
+    /**
+     * Sends to server request to join a channel.
+     * @param channelName channel name.
+     * @throws ConnectionException  when contacting server failed.
+     */
     public void join(String channelName) throws ConnectionException
     {
         if (state != State.MENU) return ;
@@ -678,6 +697,10 @@ public class Client
         toServer.send(json, resHandler);          
     }
     
+    /**
+     * Sends to server request to get new channels.
+     * @throws ConnectionException when contacting server failed.
+     */
     public void refreshChannels() throws ConnectionException
     {
         if (state != State.MENU) return ;
@@ -695,7 +718,7 @@ public class Client
      * his guests, else mssg is sent to host who will propagate it to other
      * guests.
      * @param mssg String with message.
-     * @throws ConnectionException 
+     * @throws ConnectionException  when contacting another client failed.
      */
     public void sendChatMssg(String mssg) throws ConnectionException
     {
@@ -719,7 +742,7 @@ public class Client
      * Sends data encapsulated in json object. If method is invoked by host
      * then json is sent to all his guests. Otherwise it sent to host.
      * @param json JSONObject with data.
-     * @throws ConnectionException 
+     * @throws ConnectionException when contacting another client failed.
      */
     public void sendData(JSONObject json) throws ConnectionException
     {
@@ -750,6 +773,9 @@ public class Client
         }
     }
     
+    /**
+     * Informs host and server about leaving channel.
+     */
     public void leaveChannel()
     {
         if (!iamhost)
@@ -765,6 +791,10 @@ public class Client
         letKnowYouAreFree();
     }
     
+    /**
+     * This method should be used by host to inform server that we want to
+     * start a game.
+     */
     public void startGame()
     {
         new Thread(new Runnable() {
@@ -782,26 +812,47 @@ public class Client
         pcs.firePropertyChange("state", State.UNINIT, State.GAME);
     }
     
+    /**
+     * Adds Property Listener.
+     * @param pcl a property listener.
+     */
     public void addPropertyChangeListener(PropertyChangeListener pcl)
     {
         pcs.addPropertyChangeListener(pcl);
     }
     
+    /**
+     * Returns state of client.
+     * @return state of client.
+     */
     public State getState()
     {
         return state;
     }
 
+    /**
+     * Returns nick of this client.
+     * @return nick of this client.
+     */
     public String getMyNick()
     {
         return myNick;
     }
 
+    /**
+     * Returns true if and only if this client is a host.
+     * @return 
+     */
     public boolean isHost()
     {
         return iamhost;
     }
     
+    /**
+     * It should be used by host to get nicks of his guests.
+     * @return nicks of guests of this clients. If client is not a host or has
+     * not guests then 0-element array is returned.
+     */
     public String[] getGuestNicks()
     {
         Object[] array = guests.keySet().toArray();
@@ -855,10 +906,27 @@ public class Client
         else return addrs.containsKey(dinfo.getSender()) ||
                     dinfo.getSender().equals(serverAddr);
     }
-
-        
+    
+    /**
+     * Possible states of Client.
+     */
     public enum State {
-        DISC, MENU, UNINIT, GAME
+        /**
+         * Disconnected.
+         */
+        DISC,
+        /**
+         * Menu mode.
+         */
+        MENU,
+        /**
+         * Uninitialized (not started) game
+         */
+        UNINIT,
+        /**
+         * (started) game.
+         */
+        GAME
     };
     
     /**
@@ -924,15 +992,15 @@ public class Client
     /**
      * Map communicate -> Handler.
      */
-    protected Map<String, Handler> handlers = new TreeMap<String, Handler>();
+    private Map<String, Handler> handlers = new TreeMap<String, Handler>();
     
     /**
      * Response handler. It is used by send method of toClient and toServer.
      */
-    Handler resHandler;
+    private Handler resHandler;
     
     /**
      * Game for each this client is used.
      */
-    final String gameName;
+    private final String gameName;
 }

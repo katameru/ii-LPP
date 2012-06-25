@@ -153,7 +153,7 @@ public class GamePanel extends JPanel
         
         JTabbedPane tabs = new JTabbedPane();
         tabs.add("Gracz", playerPanel);
-        tabs.add("Pola", fieldPanel);
+       // tabs.add("Pola", fieldPanel);
         tabs.add("Opłaty", chargesPanel);
         
       //  tabs.setMinimumSize(new Dimension(250,150));
@@ -168,6 +168,12 @@ public class GamePanel extends JPanel
     private JPanel createControlPanel()
     {
         JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        JButton buttonTasks = new JButton("<html>Ułóż zadanie");
+        buttonTasks.setEnabled(false);
+        panel.add(buttonTasks);
+        
         buttonRoll = new JButton(new ImageIcon(BoardInfo.getDicesImg()));
         buttonRoll.addActionListener(new ActionListener()
         {

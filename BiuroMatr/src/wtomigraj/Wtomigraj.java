@@ -4,7 +4,10 @@ package wtomigraj;
 import static wtomigraj.Utils.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -16,7 +19,7 @@ import org.json.JSONObject;
 
 
 /**
- * \"Biuro matrymonialne\" is an UDP server which 
+ * \"Wromigraj\" is an UDP server which 
  * arranges connection between clients.
  * 
  * @author grzes
@@ -70,7 +73,12 @@ public class Wtomigraj implements Runnable
     @Override
     public void run()
     {
-        initGameChannels();
+        try {
+            initGameChannels();
+        } catch (Exception ex) {
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
         initHandlers();
         receiver = new Receiver(ds);
         PropertyChangeListener rListener = new PropertyChangeListener() {
@@ -95,10 +103,23 @@ public class Wtomigraj implements Runnable
         }
     }
     
-    private void initGameChannels()
+    private void initGameChannels() throws Exception
     {
-        channelNames.put("SimpleChat", new TreeSet<String>());
-        channelNames.put("IIBiznes", new TreeSet<String>());
+        InputStream is = Wtomigraj.class.getResourceAsStream("/games");
+        if (is == null)
+        {
+            throw new Exception("Error while reading 'games': "
+                    + " not found.");            
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = in.readLine()) != null)
+        {
+            if (!line.trim().isEmpty())
+            {
+                channelNames.put(line.trim(), new TreeSet<String>());                
+            }
+        }
     }
     
     /**
