@@ -560,6 +560,7 @@ public class Client
     
     private void handleLeft(DatagramInfo dinfo)
     {
+        //TODO maybe client should remove client who left?
         confirm(dinfo);
         try {
             String nick = dinfo.getJson().getString("nick");
@@ -806,11 +807,13 @@ public class Client
 
     private void propagate(final JSONObject json, AddrInfo from)
     {
+        int next = 0;
+        Thread[] t = new Thread[guests.size() - (from == null ? 0 : 1)];
         for (final ClientInfo guest: guests.values())
         {
             if (guest.ai.equals(from))
                 continue;
-            new Thread( new Runnable() {
+            t[next] = new Thread( new Runnable() {
 
                 @Override
                 public void run()
@@ -821,8 +824,15 @@ public class Client
                         guest.dead = true;
                     }
                 }
-            } ).start();                    
+            } );
+            t[next++].start();            
         }
+        for (int i = 0; i < t.length; ++i)
+            try {
+                t[i].join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
     }
     
     private void resetConnections()

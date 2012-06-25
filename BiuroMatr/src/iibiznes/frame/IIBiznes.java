@@ -20,10 +20,9 @@ public class IIBiznes extends JApplet
     }
     
     public void init()
-    {
-        String pathToConf = "conf/";        
+    {     
         try {
-            BoardInfo.readConf(pathToConf);
+            BoardInfo.readConf(IIBiznes.class);
         } catch (WrongFileException ex) {
             Logger.getLogger(IIBiznesFrame.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Error while reading"

@@ -89,6 +89,7 @@ public class Game
                 if (pair.x == pair.y)
                 {
                     gameIO.doubleDouble(pl);
+                    doubleDublet = true;
                     pl.setInPrison(2);
                 }
             }
@@ -99,13 +100,15 @@ public class Game
                 if (pl.getPosition() < pos) // przeszliśmy przez start
                 {
                     pl.addCS(premium);
+                    pl.setTasksBought(0);
                     gameIO.premium(pl);
                 }
                 fields[pl.getPosition()].arrive(pl);
 
                 if (pl.getCS() < 0)
                 {
-                    pl.inGame = false;
+                    gameIO.loser(pl);
+                    pl.setInGame(false);
                     if (winner() != null)
                     {
                         gameIO.winner(winner());
@@ -147,7 +150,7 @@ public class Game
         Player winner = null;
         for (Player p: players)
         {
-            if (p.inGame)
+            if (p.isInGame())
             {
                 if (winner == null) winner = p;
                 else return null;
@@ -156,6 +159,22 @@ public class Game
         return winner;
     }
     
+    public void dumpPlayer(String nick)
+    {
+        for (Player p: players)
+        {
+            if (p.getName().equals(nick))
+            {
+                p.setInGame(false);
+                gameIO.left(p);
+                if (curr().getName().equals(nick))
+                {
+                    next();
+                    gameIO.turn(curr());
+                }
+            }
+        }
+    }
     
     
     private void makePlayers(NewGameSettings setts)
@@ -241,7 +260,11 @@ public class Game
     {
         Player p = players[nextPlayer++];
         if (nextPlayer == players.length) nextPlayer = 0;
-        return p;
+        if (!p.isInGame())
+        {
+            return next();
+        }
+        else return p;
     }    
     
     public void updateDisplay(DisplayInfo di)

@@ -3,14 +3,12 @@ package iibiznes.game;
 
 import biuromatr.Client;
 import biuromatr.Utils;
+import iibiznes.frame.GamePanel;
 import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.JTextPane;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.StyledDocument;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -20,11 +18,10 @@ import org.json.JSONObject;
 public class GameIO
 {
 
-    public GameIO(JTextPane messages, Client client)
+    public GameIO(GamePanel pgame, Client client)
     {
-        this.messages = messages;
+        this.pgame = pgame;
         this.client = client;
-        doc = messages.getStyledDocument();
     }
 
     public Game getGame()
@@ -37,25 +34,10 @@ public class GameIO
         this.game = game;
     }
     
-    public JTextComponent getMessages()
-    {
-        return messages;
-    }
-
-    public void setMessages(JTextPane messages)
-    {
-        this.messages = messages;
-    }
-    
     public void appendMssg(String mssg, Player p)
     {
         Color c = (p == null ? Color.WHITE : p.getColor());
-        try {
-            doc.insertString(doc.getLength(),
-                    mssg + "\n", doc.getStyle(c.toString()));
-        } catch (BadLocationException ex) {
-            Logger.getLogger(GameIO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        pgame.addToDiary(mssg, c);
         try {
             JSONObject json = Utils.makeJSON("gamedata");
             json.put("subtype", "diary");
@@ -81,20 +63,36 @@ public class GameIO
     
     public void doubleDouble(Player p)
     {
-        JOptionPane.showMessageDialog(null, "Dwukrotnie wyrzuciłeś dublet."
-                + " Udajesz się na obowiązkowe kucie.",
-                "Idziesz do ryjca!", JOptionPane.INFORMATION_MESSAGE);
         String str = p.name + " dwukrotnie wyrzucił dublet, idzie do ryjca!";
         appendMssg(str, p);
+        if (playerIsHost(p))
+        {
+            JOptionPane.showMessageDialog(null, "Dwukrotnie wyrzuciłeś dublet."
+                + " Udajesz się na obowiązkowe kucie.",
+                "Idziesz do ryjca!", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else
+        {
+            sendMssgDialog("Dwukrotnie wyrzuciłeś dublet. Udajesz się na "
+                    + "obowiązkowe kucie.", JOptionPane.INFORMATION_MESSAGE, p.getName());
+        }
     }
     
     public void goToPrison(Player p)
     {
-        JOptionPane.showMessageDialog(null, "Stanąłeś na polu "
-                + "\"Idziesz do ryjca!\". Udajesz się na obowiązkowe kucie.",
-                "Idziesz do ryjca!", JOptionPane.INFORMATION_MESSAGE);
         String str = "Gracza " + p.name + " czeka obowiązkowa sesja w ryjcu!";
         appendMssg(str, p);
+        if (playerIsHost(p))
+        {
+            JOptionPane.showMessageDialog(null, "Stanąłeś na polu "
+                    + "\"Idziesz do ryjca!\". Udajesz się na obowiązkowe kucie.",
+                    "Idziesz do ryjca!", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else
+        {
+            sendMssgDialog("Stanąłeś na polu \"Idziesz do ryjca!\". Udajesz się"
+                    + " na obowiązkowe kucie.", JOptionPane.INFORMATION_MESSAGE, p.getName());
+        }
     }
     
     public void unsupported(String str)
@@ -108,7 +106,7 @@ public class GameIO
     {
         String str;
         if (p.getInPrison() > 0)
-            str = p.name + " czeka na ruch " + (p.getInPrison() + 1) + " tury";
+            str = p.name + " czeka na ruch " + p.getInPrison() + " tury";
         else str = p.name + " czeka na ruch jedną turę";
         appendMssg(str, p);         
     }
@@ -128,18 +126,39 @@ public class GameIO
     public void maybeBuy(Player p, Buyable b)
     {
         if (p.getCS() < b.getPrice())
-        {
-            JOptionPane.showMessageDialog(null,
-                    "Masz za mało ChceniaSię aby zdać " + b.getFieldInfo().name,
-                    "Nie zdasz", JOptionPane.INFORMATION_MESSAGE);
+        {            
+            if (playerIsHost(p))
+            {            
+                JOptionPane.showMessageDialog(null,
+                        "Masz za mało Motywacji aby zdać " + b.getFieldInfo().name,
+                        "Nie zdasz", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else
+            {
+                sendMssgDialog("Masz za mało Motywacji aby zdać " + b.getFieldInfo().name,
+                        JOptionPane.INFORMATION_MESSAGE, p.getName());
+            }            
             appendMssg(p.getName() + " nie stać na zdanie.", p);
             return ;
         }
-        int res = JOptionPane.showOptionDialog(null,
-                "Czy chcesz zdać " + b.getFieldInfo().name + "?\n"
-                + "Koszt: " + b.getPrice() + " ChceniaSię.",
-                "Kupujesz?", JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE, null, null, null);
+        
+        int res;
+        if (playerIsHost(p))
+        {
+            res = JOptionPane.showOptionDialog(null,
+                    "Czy chcesz zdać " + b.getFieldInfo().name + "?\n"
+                    + "Koszt: " + b.getPrice() + " Motywacji.",
+                    "Kupujesz?", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, null, null);
+        }
+        else
+        {
+            sendMssgDialog("Czy chcesz zdać " + b.getFieldInfo().name + "?\n"
+                    + "Koszt: " + b.getPrice() + " Motywacji.",
+                    JOptionPane.QUESTION_MESSAGE, p.getName());    
+            waitForAnswer();
+            res = answer;
+        }
         if (res == JOptionPane.NO_OPTION)
             appendMssg("Nie kupuje.", p);
         else
@@ -156,7 +175,7 @@ public class GameIO
     
     public void premium(Player p)
     {
-        appendMssg(p.getName() + " przechodzi przez Start, ChcenieSię rośnie!", p);
+        appendMssg(p.getName() + " przechodzi przez Start, Motywacja rośnie!", p);
     }
     
    /* public Pair takeARoll(String str)
@@ -166,27 +185,51 @@ public class GameIO
     
     public void charge(Player player, Player owner, int charge)
     {
-        JOptionPane.showMessageDialog(null, "To pole należy do gracza " 
-                + owner.getName() + ", płacisz mu " + charge + " CS.",
-                "Mniej Ci się chce", JOptionPane.INFORMATION_MESSAGE);
         appendMssg(player.getName() + " płaci graczowi " + owner.getName() + " "
-                + charge + " CS.", player);
+                + charge + " motywacji.", player);
+        if (playerIsHost(player))
+        {
+            JOptionPane.showMessageDialog(null, "To pole należy do gracza " 
+                    + owner.getName() + ", płacisz mu " + charge + " motywacji.",
+                    "Mniej Ci się chce", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else
+        {
+            sendMssgDialog("To pole należy do gracza " 
+                    + owner.getName() + ", płacisz mu " + charge + " motywacji.",
+                    JOptionPane.INFORMATION_MESSAGE, player.getName());
+        }
     }
 
     public void loss(Player pl, String desc, int loss)
     {        
-        JOptionPane.showMessageDialog(null, desc + "\nStrata: " + loss + " CS",
-                "Mniej Ci się chce", JOptionPane.INFORMATION_MESSAGE);
-        appendMssg("ChcenieSię gracza " + pl.getName()
+        appendMssg("Motywacja gracza " + pl.getName()
                 + " zmniejsza się o " + loss + ".", pl);
+        if (playerIsHost(pl))
+        {
+            JOptionPane.showMessageDialog(null, desc + "\nStrata: " + loss + " motywacji",
+                    "Mniej Ci się chce", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else
+        {
+            sendMssgDialog(desc + "\nStrata: " + loss + " motywacji",
+                    JOptionPane.INFORMATION_MESSAGE, pl.getName());
+        }
     }
     
     public void card(Player pl, String desc)
     {
-        JOptionPane.showMessageDialog(null, desc,
-                "Szansa", JOptionPane.INFORMATION_MESSAGE);
         appendMssg(pl.getName() + " wyciąga kartę \"" + desc + "\".",
                 pl);
+        if (playerIsHost(pl))
+        {
+            JOptionPane.showMessageDialog(null, desc,
+                    "Szansa", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else
+        {
+            sendMssgDialog(desc, JOptionPane.INFORMATION_MESSAGE, pl.getName());
+        }
     }
     
     void winner(Player winner)
@@ -195,10 +238,74 @@ public class GameIO
         JOptionPane.showMessageDialog(null,
                 "Koniec! Zwycięża " + winner.getName() + "!",
                 "Koniec gry", JOptionPane.INFORMATION_MESSAGE);
+        for (String nick: client.getGuestNicks())
+            sendMssgDialog("Koniec! Zwycięża " + winner.getName() + "!",
+                    JOptionPane.INFORMATION_MESSAGE, nick);
+    }
+    
+    
+    synchronized private void waitForAnswer()
+    {
+        answer = NO_ANSWER;
+        while (answer == NO_ANSWER)
+        {
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ToPrison.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    synchronized public void gotAnswer(int ans)
+    {
+        answer = ans;
+        notify();
+    }
+    
+    public void sendMssgDialog(String mssg, int mssgType, String plNick)
+    {
+        try {
+            JSONObject json = Utils.makeJSON("gamedata");
+            json.put("subtype", "mssgdialog");
+            json.put("mssg", mssg);
+            json.put("mssgtype", mssgType);
+            client.sendData(json, plNick);
+        } catch (JSONException ex) {
+            Logger.getLogger(GameIO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private boolean playerIsHost(Player p)
+    {
+        return client.getMyNick().equals(p.getName());
+    }
+    
+    void loser(Player pl)
+    {
+        appendMssg(pl.getName() + " traci całą swoją motywację"
+                + " i odpada ze studiów.", pl);
+        String desc = "Skończyła Ci się motywacja. Zostajesz skreślony z listy studentów.";
+        if (playerIsHost(pl))
+        {
+            JOptionPane.showMessageDialog(null, desc,
+                    "Szansa", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else
+        {
+            sendMssgDialog(desc, JOptionPane.INFORMATION_MESSAGE, pl.getName());
+        }
+    }
+    
+    void left(Player pl)
+    {
+        appendMssg(pl.getName() + " odpuszcza sobie studia.", pl);
     }
     
     Game game;
-    JTextPane messages;    
-    StyledDocument doc;
+    GamePanel pgame; 
     Client client;
+    int answer;
+    private final int NO_ANSWER = -452397;
+
 }

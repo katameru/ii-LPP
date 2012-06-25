@@ -5,10 +5,10 @@ import clientframe.PanelChat;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,6 +25,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
+import javax.swing.BoxLayout;
+import javax.swing.JScrollBar;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -50,7 +53,7 @@ public class GamePanel extends JPanel
         playerPanel.update();
     }
     
-    private void createPanes()
+   /* private void createPanes()
     {
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
@@ -85,6 +88,36 @@ public class GamePanel extends JPanel
         add(controlPanel);
         
         update();
+    }*/
+    
+    private void createPanes()
+    {      
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        
+        JPanel upper = new JPanel();
+        upper.setLayout(new BoxLayout(upper, BoxLayout.X_AXIS));
+        upper.add(boardLabel);                
+                
+        Component tabs = createTabs();
+        upper.add(tabs);
+        
+        JPanel lower = new JPanel();
+        lower.setLayout(new BoxLayout(lower, BoxLayout.X_AXIS));
+        pchat.setMinimumSize(new Dimension(200,300));
+        lower.add(pchat);
+        
+        diary = createDiary();
+        scrollDiary = new JScrollPane(diary);
+        scrollDiary.setMaximumSize(new Dimension(200,300));
+        lower.add(scrollDiary);
+        
+        Component controlPanel = createControlPanel();
+        lower.add(controlPanel);
+        
+        add(upper);
+        add(lower);
+        
+        update();        
     }
     
     private JTextPane createDiary()
@@ -142,8 +175,8 @@ public class GamePanel extends JPanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                mainPanel.rollTheDicesPressed();
                 buttonRoll.setEnabled(false);
+                mainPanel.rollTheDicesPressed();
             }
         });
         buttonRoll.setEnabled(false);
@@ -203,12 +236,25 @@ public class GamePanel extends JPanel
         buttonRoll.setEnabled(on);
     }
     
+    public void addToDiary(String mssg, Color c)
+    {
+        StyledDocument doc = diary.getStyledDocument();
+        try {
+            doc.insertString(doc.getLength(),
+                    mssg + "\n", doc.getStyle(c.toString()));
+        } catch (BadLocationException ex) {
+            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        JScrollBar bar = scrollDiary.getVerticalScrollBar();
+        bar.setValue(bar.getMaximum());
+    }
  
-    MainPanel mainPanel;
-    DisplayInfo di;
-    JLabel boardLabel = new JLabel();
-    PlayerPanel playerPanel;
-    PanelChat pchat;
-    JTextPane diary;
-    JButton buttonRoll;
+    private MainPanel mainPanel;
+    private DisplayInfo di;
+    private JLabel boardLabel = new JLabel();
+    private PlayerPanel playerPanel;
+    private PanelChat pchat;
+    private JTextPane diary;
+    private JScrollPane scrollDiary;
+    private JButton buttonRoll;
 }

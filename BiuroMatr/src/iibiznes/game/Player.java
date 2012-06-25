@@ -132,15 +132,37 @@ public class Player
         pcs.firePropertyChange("InPrison", this.inPrison, inPrison);
         this.inPrison = inPrison;
     }
+
+    public int getTasksBought()
+    {
+        return tasksBought;
+    }
+
+    public void setTasksBought(int tasksBought)
+    {
+        this.tasksBought = tasksBought;
+    }
+
+    public boolean isInGame()
+    {
+        return inGame;
+    }
+
+    public void setInGame(boolean inGame)
+    {
+        this.inGame = inGame;
+    }
     
     
     public final String name;
     public final Color color;
     public final int id;
-    boolean inGame = true;
+    private boolean inGame = true;
     private int inPrison;
+    private int tasksBought;
     private int CS;
     private int position = 0;
     private PropertyChangeSupport pcs;
     private ArrayList<Buyable> properties = new ArrayList<Buyable>();
+
 }

@@ -24,7 +24,7 @@ public class IIBiznesFrame extends JFrame
             pathToConf = args[0];
         }
         try {
-            BoardInfo.readConf(pathToConf);
+            BoardInfo.readConf(IIBiznesFrame.class);
         } catch (WrongFileException ex) {
             Logger.getLogger(IIBiznesFrame.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Error while reading"

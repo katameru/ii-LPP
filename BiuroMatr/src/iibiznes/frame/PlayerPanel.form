@@ -28,7 +28,7 @@
                       <Component id="CS" min="-2" pref="89" max="-2" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
-                  <Component id="lblPos" alignment="0" pref="164" max="32767" attributes="1"/>
+                  <Component id="lblPos" alignment="0" pref="173" max="32767" attributes="1"/>
               </Group>
           </Group>
           <Component id="lblPlayer" min="-2" pref="161" max="-2" attributes="0"/>
@@ -71,7 +71,7 @@
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="CS"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Chcenie Si&#x119;: "/>
+        <Property name="text" type="java.lang.String" value="Motywacja:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="CS">

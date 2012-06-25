@@ -50,6 +50,12 @@ public class AddrInfo implements Comparable<AddrInfo>
         if (c == 0) return Integer.compare(port, o.port);
         else return c;
     }
+    
+    @Override
+    public String toString()
+    {
+        return iaddr.getHostAddress() + ":" + port;
+    }
 
     private InetAddress iaddr;
     private int port;

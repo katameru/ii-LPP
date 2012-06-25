@@ -29,8 +29,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.StyledDocument;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,6 +69,7 @@ public class MainPanel extends JPanel
                 try {
                     client.start(nick);
                 } catch (ConnectionException ex) {
+                    ex.printStackTrace();
                     JOptionPane.showMessageDialog(MainPanel.this,
                             "Could not contact server.",
                             "Error", JOptionPane.ERROR_MESSAGE);
@@ -288,7 +287,6 @@ public class MainPanel extends JPanel
         if (client.isHost())
         {
             updateGameLogic();
-            turnStuff();
         }
         else
         {
@@ -303,8 +301,7 @@ public class MainPanel extends JPanel
                 pgame.enableRoll(true);
             }
         }
-    }
-    
+    }    
 
     void refreshGuests()
     {
@@ -333,10 +330,16 @@ public class MainPanel extends JPanel
     
     private void updateGameLogic()
     {
-        game.rollTheDices();
-        game.updateDisplay(di);
-        pgame.update();
-        sendDisplayInfo();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                game.rollTheDices();
+                game.updateDisplay(di);
+                pgame.update();
+                sendDisplayInfo();
+                turnStuff();
+            }
+        }).start();
     }
     
     private void stateChanged(Client.State newState)
@@ -401,6 +404,14 @@ public class MainPanel extends JPanel
             else if (subtype.equalsIgnoreCase("roll"))
             {
                 rollReceived(json);
+            }
+            else if (subtype.equalsIgnoreCase("mssgdialog"))
+            {
+                showMessageDialog(json);
+            }
+            else if (subtype.equalsIgnoreCase("answer"))
+            {
+                answerReceived(json);
             }
             else System.err.println("MainPanel.analizeGameData: " + 
                     "I don't know what do with subtype \"" + subtype + "\".");
@@ -557,42 +568,31 @@ public class MainPanel extends JPanel
     
     private void playerLeft(String nick)
     {
-        throw new UnsupportedOperationException("Not yet implemented");
+        game.dumpPlayer(nick);
+        turnStuff();
     }
     
     private void createGameIO()
     {
-        gameIO = new GameIO(pgame.diary, client);
+        gameIO = new GameIO(pgame, client);
         gameIO.setGame(game);
         game.setGameIO(gameIO);
     }
  
     private void addToDiary(JSONObject json)
     {
+        if (pgame == null) return;
         try {
-            StyledDocument doc = pgame.diary.getStyledDocument();
             String mssg = json.getString("mssg");
             int playerNr = json.getInt("playerNr");
             Color c = Color.WHITE;
             try { c = di.colors[playerNr]; }
                 catch (ArrayIndexOutOfBoundsException ex) {}
-            doc.insertString(doc.getLength(),
-                    mssg + "\n", doc.getStyle(c.toString()));
+            pgame.addToDiary(mssg, c);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-
-    private Game game;
-    private GameIO gameIO;
-    private DisplayInfo di;
-    private PanelDisc pdisc;
-    private PanelChat pchat;
-    private GamePanel pgame;
-    private PanelMenu pmenu;
-    private SettingsForm psetts; 
-    private JPanel pcurr;
-    private Client client;
 
     private void rollReceived(JSONObject json)
     {
@@ -606,4 +606,52 @@ public class MainPanel extends JPanel
             ex.printStackTrace();
         }            
     }
+
+    private void showMessageDialog(JSONObject json)
+    {
+        try {
+            int mssgType = json.getInt("mssgtype");
+            String mssg = json.getString("mssg");
+            if (mssgType == JOptionPane.QUESTION_MESSAGE)
+            {
+                int res = JOptionPane.showOptionDialog(this,
+                    mssg, "Question", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, null, null);
+                JSONObject ans = Utils.makeJSON("gamedata");
+                ans.put("subtype", "answer");
+                ans.put("answer", res);
+                client.sendData(ans);
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(this, mssg, "Information", mssgType);
+            }
+        } catch (JSONException ex) {
+            Logger.getLogger(MainPanel.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ConnectionException ex) {
+            Logger.getLogger(MainPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void answerReceived(JSONObject json)
+    {
+        try {
+            int ans = json.getInt("answer");
+            gameIO.gotAnswer(ans);
+        } catch (JSONException ex) {
+            Logger.getLogger(MainPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private Game game;
+    private GameIO gameIO;
+    private DisplayInfo di;
+    private PanelDisc pdisc;
+    private PanelChat pchat;
+    private GamePanel pgame;
+    private PanelMenu pmenu;
+    private SettingsForm psetts; 
+    private JPanel pcurr;
+    private Client client;
+
 }

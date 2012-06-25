@@ -66,11 +66,15 @@ public class ReqSender implements PropertyChangeListener
             }
             synchronized(this)
             {
-                try {
-                    wait( waitTime );
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ReqSender.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                for (int j = 0; j < 10; ++j)
+                    if (!confirmed)
+                    {
+                        try {
+                            wait( waitTime/10 );
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ReqSender.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
             }
         }
         currNr = -1;

@@ -49,7 +49,7 @@ public class PlayerPanel extends JPanel
         lblPlayer.setText("Player");
 
         jLabel1.setLabelFor(CS);
-        jLabel1.setText("Chcenie Się: ");
+        jLabel1.setText("Motywacja:");
 
         CS.setEditable(false);
         CS.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
@@ -82,7 +82,7 @@ public class PlayerPanel extends JPanel
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(CS, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
-                    .addComponent(lblPos, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)))
+                    .addComponent(lblPos, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)))
             .addComponent(lblPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
         );

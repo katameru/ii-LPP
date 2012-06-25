@@ -47,5 +47,5 @@ public class CardStack
     
     ArrayList<Card> cards;
     int pos;
-    Random rand = new Random();
+    Random rand = new Random(System.currentTimeMillis());
 }

@@ -59,22 +59,26 @@ public class FieldInfo
     
     private String topicChargeDesc()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Temat bez zadań domowych: ")
-                .append(BoardInfo.getCharges(name)[0])
-                .append("\n").append("(Gdy gracz posiada wszystkie tematy z"
-                + " danego przedmiotu opłata jest liczona podwójnie)\n")
-                .append("Z jednym zadaniem: ")
-                .append(BoardInfo.getCharges(name)[1])
-                .append("\n").append("Z dwoma zadaniami: ")
-                .append(BoardInfo.getCharges(name)[2])
-                .append("\n").append("Z trzema zadaniami: ")
-                .append(BoardInfo.getCharges(name)[3])
-                .append("\n").append("Z czterema zadaniami: ")
-                .append(BoardInfo.getCharges(name)[4])
-                .append("\n").append("Z projektem: ")
-                .append(BoardInfo.getCharges(name)[5]);
-        return sb.toString();
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Temat bez zadań domowych: ")
+                    .append(BoardInfo.getCharges(name)[0])
+                    .append("\n").append("(Gdy gracz posiada wszystkie tematy z"
+                    + " danego przedmiotu opłata jest liczona podwójnie)\n")
+                    .append("Z jednym zadaniem: ")
+                    .append(BoardInfo.getCharges(name)[1])
+                    .append("\n").append("Z dwoma zadaniami: ")
+                    .append(BoardInfo.getCharges(name)[2])
+                    .append("\n").append("Z trzema zadaniami: ")
+                    .append(BoardInfo.getCharges(name)[3])
+                    .append("\n").append("Z czterema zadaniami: ")
+                    .append(BoardInfo.getCharges(name)[4])
+                    .append("\n").append("Z projektem: ")
+                    .append(BoardInfo.getCharges(name)[5]);
+            return sb.toString();
+        } catch (Exception ex) {       
+            return "";
+        }
     }
 
     private String courseChargeDesc()

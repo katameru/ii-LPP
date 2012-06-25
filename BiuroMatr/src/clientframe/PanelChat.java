@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -22,7 +23,8 @@ public class PanelChat extends JPanel
     public PanelChat(GameInterface parent)
     {
         this.parent = parent;setLayout(new BorderLayout());
-        add(new JScrollPane(area), BorderLayout.CENTER);
+        scrollArea = new JScrollPane(area);
+        add(scrollArea, BorderLayout.CENTER);
         area.setEditable(false);
         area.setText("Wait for connection...\n");
         JPanel south = createSouth();
@@ -96,6 +98,8 @@ public class PanelChat extends JPanel
     public void append(String text)
     {
         area.append(text + "\n");
+        JScrollBar bar = scrollArea.getVerticalScrollBar();
+        bar.setValue(bar.getMaximum());
     }
     
     public void sendEnabled(boolean on)
@@ -105,6 +109,7 @@ public class PanelChat extends JPanel
     
     private GameInterface parent;
     private JTextArea area = new JTextArea();
+    JScrollPane scrollArea;
     private JTextField field = new JTextField();
     private JButton bttnSend = new JButton("Send");
     private JButton bttnDisc = new JButton("Disc");

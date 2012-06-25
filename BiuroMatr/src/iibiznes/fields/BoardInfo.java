@@ -4,10 +4,10 @@ package iibiznes.fields;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -19,24 +19,24 @@ import javax.imageio.ImageIO;
  */
 public class BoardInfo
 {    
-    public static void readConf(String path) throws WrongFileException
-    {
-        readFields(path + "/fields");
-        readTopics(path + "/topics");
-        readSubjects(path + "/subjects");
+    public static void readConf(Class cl) throws WrongFileException
+    {     
+        readFields(cl);
+        readTopics(cl);
+        readSubjects(cl);
         //readCards(path + "/cards");
-        readImages(path);
+        readImages(cl);
     }
     
-    private static void readFields(String path) throws WrongFileException
+    private static void readFields(Class cl) throws WrongFileException
     {
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(path));
-        } catch (FileNotFoundException ex) {
-            throw new WrongFileException("Error while reading 'fields': "
-                    + "file " + path + " not found.");
+        InputStream is = cl.getResourceAsStream("/fieldsinfo");
+        if (is == null)
+        {
+            throw new WrongFileException("Error while reading 'fieldsinfo': "
+                    + " not found.");            
         }
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
         String line = "";
         try {
             line = in.readLine(); //first line is description of columns
@@ -66,15 +66,15 @@ public class BoardInfo
             fields[i] = vec.get(i);
     }
     
-    private static void readSubjects(String path) throws WrongFileException
+    private static void readSubjects(Class cl) throws WrongFileException
     {
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(path));
-        } catch (FileNotFoundException ex) {
+        InputStream is = cl.getResourceAsStream("/subjects");
+        if (is == null)
+        {
             throw new WrongFileException("Error while reading 'subjects': "
-                    + "file " + path + " not found.");
+                    + " not found.");            
         }
+        BufferedReader in =  new BufferedReader(new InputStreamReader(is));
         String line = "";
         try {
             line = in.readLine(); //first line is description of columns
@@ -119,15 +119,15 @@ public class BoardInfo
         }
     }
 
-    private static void readTopics(String path) throws WrongFileException
+    private static void readTopics(Class cl) throws WrongFileException
     {
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(path));
-        } catch (FileNotFoundException ex) {
-            throw new WrongFileException("Error while reading 'topics': "
-                    + "file " + path + " not found.");
+        InputStream is = cl.getResourceAsStream("/topics");
+        if (is == null)
+        {
+            throw new WrongFileException("Error while reading 'subjects': "
+                    + " not found.");            
         }
+        BufferedReader in =  new BufferedReader(new InputStreamReader(is));
         String line = "";
         try {
             line = in.readLine(); //first line is description of columns
@@ -170,23 +170,25 @@ public class BoardInfo
         charges.put(tokens[0], tab);
     }
 
-    private static void readCards(String path)
+    private static void readCards(Class cl)
     {
         throw new UnsupportedOperationException("Not yet implemented");
     }
     
-    private static void readImages(String path) throws WrongFileException
+    private static void readImages(Class cl) throws WrongFileException
     {
-         boardImg = readImage(path, "iibiznes.png");
-         dicesImg = readImage(path, "dices.png");
+        URL boardImgURL = cl.getResource("/iibiznes.png");
+        URL dicesImgURL = cl.getResource("/dices.png");
+         boardImg = readImage(boardImgURL);
+         dicesImg = readImage(dicesImgURL);
     }
     
-    private static Image readImage(String path, String name) throws WrongFileException
+    private static Image readImage(URL url) throws WrongFileException
     {
         try {
-            return ImageIO.read(new File(path + "/" + name));
+            return ImageIO.read(url);
         } catch (IOException ex) {
-            throw new WrongFileException("Error while reading '" + name + "'"
+            throw new WrongFileException("Error while reading '" + url.getFile() + "'"
                     + "\n" + ex.getMessage());
         }
     }
@@ -238,5 +240,4 @@ public class BoardInfo
     static Map <String, SubjectInfo> topicToSub = new TreeMap<String, SubjectInfo>();
     static Map <String, SubjectInfo> subjects = new TreeMap<String, SubjectInfo>();
     static Map <String, int[]> charges = new TreeMap<String, int[]>();
-
 }

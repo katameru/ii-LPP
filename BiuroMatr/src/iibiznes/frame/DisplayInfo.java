@@ -75,7 +75,7 @@ public class DisplayInfo
             positions[i] = tmp.getInt(i);        
         
         tmp = json.getJSONArray("properties");     
-        for (int i = 0; i < players; ++i)
+        for (int i = 0; i < properties.length; ++i)
             properties[i] = tmp.getInt(i);        
         
         tmp = json.getJSONArray("CS");     
