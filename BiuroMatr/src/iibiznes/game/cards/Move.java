@@ -20,9 +20,17 @@ public class Move extends Card
     {
         String str;
         if (steps >= 0)
-            str = "Posuwasz się o " + steps + " pola. Jeżeli przechodzisz przez"
+        {
+            if (steps >= 5) str = "Posuwasz się o " + steps + " pól. Jeżeli przechodzisz przez"
                     + " Start otrzymujesz premię.";
-        else str = "Cofasz się o " + (-steps) + " pola";        
+            else str = "Posuwasz się o " + steps + " pola. Jeżeli przechodzisz przez"
+                    + " Start otrzymujesz premię.";
+        }
+        else
+        {
+            if (steps >= -5) str = "Cofasz się o " + (-steps) + " pól";     
+            else str = "Cofasz się o " + (-steps) + " pola"; 
+        }
         game.getGameIO().card(pl, str);
         
         int pos = pl.getPosition();

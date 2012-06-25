@@ -103,12 +103,11 @@ public class GamePanel extends JPanel
         
         JPanel lower = new JPanel();
         lower.setLayout(new BoxLayout(lower, BoxLayout.X_AXIS));
-        pchat.setMinimumSize(new Dimension(200,300));
         lower.add(pchat);
         
         diary = createDiary();
         scrollDiary = new JScrollPane(diary);
-        scrollDiary.setMaximumSize(new Dimension(200,300));
+        scrollDiary.setPreferredSize(new Dimension(300,200));
         lower.add(scrollDiary);
         
         Component controlPanel = createControlPanel();

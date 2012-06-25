@@ -20,7 +20,7 @@ public class Premium extends Card
     public void work(Player pl, Game game)
     {
         pl.addCS(premium);
-        String str = desc + " Przybywa Ci " + premium + " CS.";
+        String str = desc + " Przybywa Ci " + premium + " motywacji.";
         game.getGameIO().card(pl, str);
     }
     

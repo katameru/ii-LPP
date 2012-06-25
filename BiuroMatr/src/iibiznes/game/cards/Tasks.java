@@ -50,7 +50,7 @@ public class Tasks extends Card
         pl.addCS(-res);
         String desc = "Musisz uaktualnić Twoje zadania. Każde uaktualnie "
                 + "kosztuje Cię " + percents + "% pierwotnej wartości.";
-        String loss = " Łączna strata: " + res + " CS.";
+        String loss = " Łączna strata: " + res + " motywacji.";
         game.getGameIO().card(pl, desc + loss);        
     }
     
@@ -68,8 +68,8 @@ public class Tasks extends Card
         }
         pl.addCS(-sum);
         String desc = "Musisz uaktualnić Twoje zadania. Każde uaktualnie "
-                + "kosztuje Cię " + absolute + " CS";
-        String loss = " Łączna strata: " + sum + " CS.";
+                + "kosztuje Cię " + absolute + " motywacji";
+        String loss = " Łączna strata: " + sum + " motywacji.";
         game.getGameIO().card(pl, desc + loss);        
     }
     
@@ -89,7 +89,7 @@ public class Tasks extends Card
         pl.addCS(-res);
         String desc = "Musisz uaktualnić Twoje projekty. Każde uaktualnie "
                 + "kosztuje Cię " + percents + "% pierwotnej wartości.";
-        String loss = " Łączna strata: " + res + " CS.";
+        String loss = " Łączna strata: " + res + " motywacji.";
         game.getGameIO().card(pl, desc + loss);        
     }
     
@@ -107,8 +107,8 @@ public class Tasks extends Card
         }
         pl.addCS(-sum);
         String desc = "Musisz uaktualnić Twoje projekty. Każde uaktualnie "
-                + "kosztuje Cię " + absolute + " CS";
-        String loss = " Łączna strata: " + sum + " CS.";
+                + "kosztuje Cię " + absolute + " motywacji";
+        String loss = " Łączna strata: " + sum + " motywacji.";
         game.getGameIO().card(pl, desc + loss);        
     }
     

@@ -86,7 +86,7 @@ public class BiuroMatr implements Runnable
         };
         receiver.addPropertyChangeListener(rListener);   
         receiver.startListening();
-       // installPresenceChecker();
+        installPresenceChecker();
         try {
             System.out.println("Server is running.");
             receiver.getListening().join();

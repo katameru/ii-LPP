@@ -476,20 +476,21 @@ public class Client
     private void handleUserLeft(DatagramInfo dinfo)
     {
         confirm(dinfo);
-        ClientInfo ci = addrs.get(dinfo.getSender());
-        if (ci != null)
-        {
-            addrs.remove(ci.ai);
-            guests.remove(ci.nick);
-             try {
+        try {
+            String nick = dinfo.getJson().getString("nick");
+            ClientInfo ci = guests.get(nick);
+            if (ci != null)
+            {
+                addrs.remove(ci.ai);
+                guests.remove(ci.nick);
                 JSONObject json = makeJSON("left");
                 json.put("nick", ci.nick);
                 propagate(json, null);
-            } catch (JSONException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                pcs.firePropertyChange("left", null, ci.nick);
             }
-            pcs.firePropertyChange("left", null, ci.nick);
-        }
+         } catch (JSONException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+         }
     }
     
     private void handleError(DatagramInfo dinfo)
@@ -560,7 +561,11 @@ public class Client
     
     private void handleLeft(DatagramInfo dinfo)
     {
-        //TODO maybe client should remove client who left?
+        /*
+         * This handler is used by guests when host informs about leave of one
+         * player. When server informs host about leave of one of his guests
+         * handleUserLeft is used.
+         */
         confirm(dinfo);
         try {
             String nick = dinfo.getJson().getString("nick");
@@ -751,7 +756,7 @@ public class Client
             try {
                 JSONObject json = makeJSON("quit");
                 hostInfo.toClient.send(json, resHandler);
-            } catch (ConnectionException ex) {
+            } catch (Exception ex) {
                //we don't do anything, we can't contact host
                //but we are leaving anyway
             }

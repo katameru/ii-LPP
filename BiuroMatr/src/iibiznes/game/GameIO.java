@@ -130,12 +130,12 @@ public class GameIO
             if (playerIsHost(p))
             {            
                 JOptionPane.showMessageDialog(null,
-                        "Masz za mało Motywacji aby zdać " + b.getFieldInfo().name,
+                        "Masz za mało motywacji aby zdać " + b.getFieldInfo().name,
                         "Nie zdasz", JOptionPane.INFORMATION_MESSAGE);
             }
             else
             {
-                sendMssgDialog("Masz za mało Motywacji aby zdać " + b.getFieldInfo().name,
+                sendMssgDialog("Masz za mało motywacji aby zdać " + b.getFieldInfo().name,
                         JOptionPane.INFORMATION_MESSAGE, p.getName());
             }            
             appendMssg(p.getName() + " nie stać na zdanie.", p);
@@ -147,24 +147,24 @@ public class GameIO
         {
             res = JOptionPane.showOptionDialog(null,
                     "Czy chcesz zdać " + b.getFieldInfo().name + "?\n"
-                    + "Koszt: " + b.getPrice() + " Motywacji.",
+                    + "Koszt: " + b.getPrice() + " motywacji.",
                     "Kupujesz?", JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, null, null);
         }
         else
         {
             sendMssgDialog("Czy chcesz zdać " + b.getFieldInfo().name + "?\n"
-                    + "Koszt: " + b.getPrice() + " Motywacji.",
+                    + "Koszt: " + b.getPrice() + " motywacji.",
                     JOptionPane.QUESTION_MESSAGE, p.getName());    
             waitForAnswer();
             res = answer;
         }
         if (res == JOptionPane.NO_OPTION)
-            appendMssg("Nie kupuje.", p);
+            appendMssg("Nie podchodzi do egzaminu.", p);
         else
         {
             game.wantBuy(p, b);
-            appendMssg("Kupuje!", p);
+            appendMssg("Zdaje!", p);
         }
     }
     
@@ -175,7 +175,7 @@ public class GameIO
     
     public void premium(Player p)
     {
-        appendMssg(p.getName() + " przechodzi przez Start, Motywacja rośnie!", p);
+        appendMssg(p.getName() + " przechodzi przez Start, motywacja rośnie!", p);
     }
     
    /* public Pair takeARoll(String str)

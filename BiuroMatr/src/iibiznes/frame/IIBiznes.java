@@ -19,6 +19,7 @@ public class IIBiznes extends JApplet
         setContentPane(new MainPanel());
     }
     
+    @Override
     public void init()
     {     
         try {

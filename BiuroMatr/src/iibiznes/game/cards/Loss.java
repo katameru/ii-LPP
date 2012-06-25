@@ -20,7 +20,7 @@ public class Loss extends Card
     public void work(Player pl, Game game)
     {
         pl.addCS(-loss);
-        String str = desc + " Tracisz " + loss + " CS.";
+        String str = desc + " Tracisz " + loss + " motywacji.";
         game.getGameIO().card(pl, str);
     }
     

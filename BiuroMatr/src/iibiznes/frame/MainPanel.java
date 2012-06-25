@@ -473,6 +473,8 @@ public class MainPanel extends JPanel
             setCurrentPanel(pgame);
         } catch (JSONException ex) {
             ex.printStackTrace();
+        } catch (Exception ex) {
+            client.leaveChannel();
         }
     }
     

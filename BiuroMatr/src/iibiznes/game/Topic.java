@@ -17,6 +17,14 @@ public class Topic extends Buyable
         super(fieldInfo, game);
     }
 
+
+    @Override
+    public void setOwner(Player owner)
+    {
+        this.owner = owner;
+        tasks = 0;
+    }
+    
     @Override
     public int getCharge()
     {

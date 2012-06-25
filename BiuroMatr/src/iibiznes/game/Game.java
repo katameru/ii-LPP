@@ -73,6 +73,9 @@ public class Game
     
     public void rollTheDices()
     {
+        if (maybeWinner() != null)
+            return ;
+        
         Player pl = next();
         if (!inPrison(pl))
         {
@@ -108,11 +111,9 @@ public class Game
                 if (pl.getCS() < 0)
                 {
                     gameIO.loser(pl);
+                    returnProperties(pl);
                     pl.setInGame(false);
-                    if (winner() != null)
-                    {
-                        gameIO.winner(winner());
-                    }
+                    maybeWinner();
                 }
             }
         }
@@ -145,7 +146,7 @@ public class Game
         return false;
     }
     
-    private Player winner()
+    private Player maybeWinner()
     {
         Player winner = null;
         for (Player p: players)
@@ -156,6 +157,8 @@ public class Game
                 else return null;
             }
         }
+        gameState = ENDED;
+        gameIO.winner(winner);
         return winner;
     }
     
@@ -169,13 +172,13 @@ public class Game
                 gameIO.left(p);
                 if (curr().getName().equals(nick))
                 {
-                    next();
+                    revalidateCurr();
                     gameIO.turn(curr());
                 }
             }
         }
-    }
-    
+        maybeWinner();
+    }    
     
     private void makePlayers(NewGameSettings setts)
     {
@@ -258,14 +261,20 @@ public class Game
     
     private Player next()
     {
-        Player p = players[nextPlayer++];
-        if (nextPlayer == players.length) nextPlayer = 0;
-        if (!p.isInGame())
-        {
-            return next();
-        }
-        else return p;
-    }    
+        //First we choose first player in queue who is still in game
+        revalidateCurr();
+        Player p = curr();
+        nextPlayer = (nextPlayer + 1) % players.length;
+        //Belew we make sure that function curr() will return proper Player
+        revalidateCurr();
+        return p;
+    }
+    
+    private void revalidateCurr()
+    {
+        while (!curr().isInGame())
+            nextPlayer = (nextPlayer + 1) % players.length;
+    }
     
     public void updateDisplay(DisplayInfo di)
     {
@@ -286,6 +295,12 @@ public class Game
                 di.properties[i] = -1;
             }
         }
+    }
+
+    private void returnProperties(Player pl)
+    {
+        for (Buyable b: pl.getProperties())
+            b.setOwner(null);
     }
     
     public static final int NOT_STARTED = 0, STARTED = 1, ENDED = 2;
