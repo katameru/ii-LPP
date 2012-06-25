@@ -103,11 +103,11 @@ public class SettingsForm extends javax.swing.JPanel
 
         jLabel2.setText("Imię");
 
-        jLabel3.setText("Color");
+        jLabel3.setText("Kolor");
 
         name1.setEditable(false);
 
-        color1.setText("Red");
+        color1.setText("Czerwony");
 
         name2.setEditable(false);
 
@@ -117,13 +117,13 @@ public class SettingsForm extends javax.swing.JPanel
 
         name5.setEditable(false);
 
-        color2.setText("Blue");
+        color2.setText("Niebieski");
 
-        color3.setText("Green");
+        color3.setText("Zielony");
 
-        color4.setText("Yellow");
+        color4.setText("Żółty");
 
-        color5.setText("Violet");
+        color5.setText("Fiioletowy");
 
         jLabel9.setText("Początkowa motywacja");
 

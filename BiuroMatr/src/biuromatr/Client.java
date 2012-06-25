@@ -411,13 +411,14 @@ public class Client
         if (state != State.UNINIT)
             return ;
         confirm(dinfo);
-        final String nick, address, port;
+        final String nick, address;
+        final int port;
         final AddrInfo ai;  
         try {
             nick = dinfo.getJson().getString("nick");
             address = dinfo.getJson().getString("address");
-            port = dinfo.getJson().getString("port");
-            ai = new AddrInfo(InetAddress.getByName(address), Integer.parseInt(port));
+            port = dinfo.getJson().getInt("port");
+            ai = new AddrInfo(InetAddress.getByName(address), port);
         } catch (Exception ex) {
             System.out.println("Invalid datagram with address received.");
             return ;

@@ -26,7 +26,6 @@ public class PanelChat extends JPanel
         scrollArea = new JScrollPane(area);
         add(scrollArea, BorderLayout.CENTER);
         area.setEditable(false);
-        area.setText("Wait for connection...\n");
         JPanel south = createSouth();
         add(south, BorderLayout.SOUTH);
     }
@@ -111,6 +110,6 @@ public class PanelChat extends JPanel
     private JTextArea area = new JTextArea();
     JScrollPane scrollArea;
     private JTextField field = new JTextField();
-    private JButton bttnSend = new JButton("Send");
-    private JButton bttnDisc = new JButton("Disc");
+    private JButton bttnSend = new JButton("Wyślij");
+    private JButton bttnDisc = new JButton("Rozłącz");
 }

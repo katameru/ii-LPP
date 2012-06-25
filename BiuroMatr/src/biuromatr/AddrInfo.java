@@ -47,7 +47,7 @@ public class AddrInfo implements Comparable<AddrInfo>
     public int compareTo(AddrInfo o)
     {
         int c = iaddr.toString().compareTo(o.iaddr.toString());
-        if (c == 0) return Integer.compare(port, o.port);
+        if (c == 0) return (port < o.port ? -1 : (port == o.port ? 0 : 1));
         else return c;
     }
     

@@ -85,9 +85,9 @@ public class PanelMenu extends JPanel
     
     private GameInterface parent;
     private JList hosts = new JList();
-    private JButton refresh = new JButton("Refresh");
-    private JButton join = new JButton("Join");
-    private JButton beHost = new JButton("Be Host");
-    private JButton disc = new JButton("Disconect");
+    private JButton refresh = new JButton("Odśwież");
+    private JButton join = new JButton("Dołącz");
+    private JButton beHost = new JButton("Nowa gra");
+    private JButton disc = new JButton("Zamknij");
     
 }

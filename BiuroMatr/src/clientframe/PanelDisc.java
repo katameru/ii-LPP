@@ -59,9 +59,9 @@ public class PanelDisc extends JPanel
     private JTextField addr = new JTextField("localhost"),
                port = new JTextField("6666"),
                nick = new JTextField("");
-    private JLabel lblAddr = new JLabel("IP address", JLabel.TRAILING),
+    private JLabel lblAddr = new JLabel("Adres IP", JLabel.TRAILING),
            lblPort = new JLabel("Port", JLabel.TRAILING),
-           lblNick = new JLabel("Nickname", JLabel.TRAILING),
-           title = new JLabel("Server localization"); 
-    private JButton bttn = new JButton("Connect");
+           lblNick = new JLabel("Nick", JLabel.TRAILING),
+           title = new JLabel("Lokalizacja serwera", JLabel.CENTER); 
+    private JButton bttn = new JButton("Połącz");
 }

@@ -151,7 +151,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Color"/>
+        <Property name="text" type="java.lang.String" value="Kolor"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="name1">
@@ -161,7 +161,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="color1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Red"/>
+        <Property name="text" type="java.lang.String" value="Czerwony"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="name2">
@@ -186,22 +186,22 @@
     </Component>
     <Component class="javax.swing.JLabel" name="color2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Blue"/>
+        <Property name="text" type="java.lang.String" value="Niebieski"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="color3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Green"/>
+        <Property name="text" type="java.lang.String" value="Zielony"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="color4">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Yellow"/>
+        <Property name="text" type="java.lang.String" value="&#x17b;&#xf3;&#x142;ty"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="color5">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Violet"/>
+        <Property name="text" type="java.lang.String" value="Fiioletowy"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel9">
