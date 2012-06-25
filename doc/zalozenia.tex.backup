@@ -35,7 +35,7 @@
 Poniższy dokument opisuje ogólne założenia dotyczące platformy Wtomigraj. Przedstawiamy tu profil potencjalnych użytkowników oraz podstawowe przypadki użycia. W dokumencie zebrane są istotne cechy oprogramowania Wtomigraj oraz stawiane przed nim wymagania. Szczegółowe informacje na temat projektu i protokołu stosowanego przez platformę można znaleźć z załączonym dokumencie ,,Wtomigraj -- Opis architektury''. Ponadto dołączamy opisy dwóch gier stworzonych przy użyciu platformy Wtomigraj.
 
 \subsection{Dlaczego Wtomigraj}
-Wśród użytkowników internetu można zaobserwować znaczne zapotrzebowanie na prostą rozrywkę, na przykład w postaci gier internetowych. Zazwyczaj są one używane w chwilach przerwy od innych działań, pomagając przez jakiś czas odetchnąć od wykonywanej pracy. Zaletą tych gier w stosunku do gier ze sklepowych półek są: intuicyjne sterowanie i nieskomplikowane zasady, a~także ich bezpłatność oraz fakt, że gry internetowe nie wymagają żadnego instalowania. W odpowiedzi na oczekiwania internautów, w Sieci znalazło się wiele portali z grami. Jednak większość z nich oferuje jedynie gry dla pojedynczego gracza. Tymczasem rosnącą popularnością cieszą się gry wieloosobowe, w~których gracze mogą rywalizować nie tylko ze sztuczną inteligencją, ale też z innymi ludźmi. Wtomigraj wychodzi naprzeciw temu zapotrzebowaniu przedstawiając wygodne API do tworzenia gier sieciowych.
+Wśród użytkowników internetu można zaobserwować znaczne zapotrzebowanie na prostą rozrywkę, na przykład w postaci gier internetowych. Zazwyczaj są one używane w chwilach przerwy od innych działań, pomagając przez jakiś czas odetchnąć od wykonywanej pracy. Zaletą tych gier w stosunku do gier ze sklepowych półek są: intuicyjne sterowanie i nieskomplikowane zasady, a~także ich bezpłatność oraz fakt, że gry internetowe nie wymagają żadnego instalowania. W odpowiedzi na oczekiwania internautów, w Sieci znalazło się wiele portali z grami. Jednak większość z nich oferuje jedynie gry dla pojedynczego gracza. Tymczasem rosnącą popularnością cieszą się gry wieloosobowe, w~których gracze mogą rywalizować z innymi ludźmi. Wtomigraj wychodzi naprzeciw temu zapotrzebowaniu przedstawiając wygodne API do tworzenia gier sieciowych.
 
 \section[Opis użytkownika]{Opis użytkownika}
 
@@ -72,9 +72,9 @@ Aby kompilować kod oparty o platformę Wtomigraj potrzebne jest JDK co najmniej
 \paragraph{Komunikacja klient-serwer.} Jest kompletna i użytkownik naszej platformy nie musi się nią martwić.
 \paragraph{Komunikacja klient-klient.} Realizowane jest nawiązywanie połączenia pomiędzy klientami, a także wysyłanie pakietów w formacie JSON pomiędzy nimi. Programiście gry pozostaje zaimplementować zapis i odczyt danych gry z pakietu JSON.
 
+\paragraph{Odnajdywanie ludzi, którzy są zainteresowani zagraniem w nasz}
+
 \section[Podstawowe przypadki użycia]{Podstawowe przypadki użycia}
-\subsection{Uruchomienie serwera.} Serwer jest gotowy do użycia, jego kod nie wymaga od programisty żadnych zmian. Programista musi tylko w pliku konfiguracyjnym dodać nazwę swojej gry, aby serwer zaczął obsługiwać klientów pragnących grać w tę grę.
-\subsection{Pisanie własnej gry.} W skład platformy Wtomigraj wchodzi biblioteka ułatwiająca tworzenie własnej gry sieciowej. Najważniejsza jej klasa to Client. Twórca gry powinien utworzyć instancję tej klasy i za jej pomocą nawiązać połączenie z serwerem i wysyłać dane do innych klientów.
 
 \section{Inne wymagania}
 \subsection{Licencjonowanie i instalacja.}
@@ -82,7 +82,7 @@ Kod udostępniony jest na licencji GNU GPL. Dzięki temu programiści korzystaj�
 
 
 \subsection{Wymagania efektywnościowe}
-Biblioteka musi umożliwiać szybką komunikację dlatego tworzymy projekt korzystając z protokołu UDP, a nie TCP, który choć jest wygodniejszy wiąże się z większym narzutem czasownym.
+Biblioteka musi umożliwiać szybką komunikację dlatego tworzymy projekt korzystając z protokołu UDP, a nie TCP, który choć jest wygodniejszy wiążę się z większym narzutem czasownym.
 
 \subsection[Wymagania dokumentacyjne]{Wymagania dokumentacyjne}
 Kod źródłowy przechowywany będzie w repozytorium GIT. Wraz z nim będzie znajdować się aktualna wersja dokumentacji, zarówno jako komentarze w kodzie źródłowym, a także jako osobny dokument opis całej architektury systemu. Ponadto każdy commit do repozytorium obowiązkowo musi zawierać opis zmian.

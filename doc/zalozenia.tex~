@@ -82,7 +82,7 @@ Kod udostępniony jest na licencji GNU GPL. Dzięki temu programiści korzystaj�
 
 
 \subsection{Wymagania efektywnościowe}
-Biblioteka musi umożliwiać szybką komunikację dlatego tworzymy projekt korzystając z protokołu UDP, a nie TCP, który choć jest wygodniejszy wiąże się z większym narzutem czasownym.
+Biblioteka musi umożliwiać szybką komunikację dlatego tworzymy projekt korzystając z protokołu UDP, a nie TCP, który choć jest wygodniejszy wiążę się z większym narzutem czasownym.
 
 \subsection[Wymagania dokumentacyjne]{Wymagania dokumentacyjne}
 Kod źródłowy przechowywany będzie w repozytorium GIT. Wraz z nim będzie znajdować się aktualna wersja dokumentacji, zarówno jako komentarze w kodzie źródłowym, a także jako osobny dokument opis całej architektury systemu. Ponadto każdy commit do repozytorium obowiązkowo musi zawierać opis zmian.
