@@ -1,9 +1,9 @@
 
 package clientframe;
 
-import biuromatr.Client;
-import biuromatr.ConnectionException;
-import biuromatr.Message;
+import wtomigraj.Client;
+import wtomigraj.ConnectionException;
+import wtomigraj.Message;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

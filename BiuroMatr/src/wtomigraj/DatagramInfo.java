@@ -1,5 +1,5 @@
 
-package biuromatr;
+package wtomigraj;
 
 import java.net.DatagramPacket;
 import org.json.JSONException;

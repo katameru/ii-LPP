@@ -1,5 +1,5 @@
 
-package biuromatr;
+package wtomigraj;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -142,7 +142,7 @@ public class Utils
             res.put("res", true);
             res.put("id", id);
         } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
         return res;
     }

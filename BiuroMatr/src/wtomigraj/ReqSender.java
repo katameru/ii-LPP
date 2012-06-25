@@ -1,5 +1,5 @@
 
-package biuromatr;
+package wtomigraj;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

@@ -1,5 +1,5 @@
 
-package biuromatr;
+package wtomigraj;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -7,7 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static biuromatr.Utils.*;
+import static wtomigraj.Utils.*;
 
 /**
  * Class designated for listening on one DatagramSocket for incoming packets.

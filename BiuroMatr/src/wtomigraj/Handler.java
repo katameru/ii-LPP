@@ -1,5 +1,5 @@
 
-package biuromatr;
+package wtomigraj;
 
 /**
  * Deriving classes should handle incoming messages.

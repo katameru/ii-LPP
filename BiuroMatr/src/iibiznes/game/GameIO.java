@@ -1,8 +1,8 @@
 
 package iibiznes.game;
 
-import biuromatr.Client;
-import biuromatr.Utils;
+import wtomigraj.Client;
+import wtomigraj.Utils;
 import iibiznes.frame.GamePanel;
 import java.awt.Color;
 import java.util.logging.Level;

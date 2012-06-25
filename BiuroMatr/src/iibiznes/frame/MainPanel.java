@@ -1,10 +1,10 @@
 
 package iibiznes.frame;
 
-import biuromatr.Client;
-import biuromatr.ConnectionException;
-import biuromatr.Message;
-import biuromatr.Utils;
+import wtomigraj.Client;
+import wtomigraj.ConnectionException;
+import wtomigraj.Message;
+import wtomigraj.Utils;
 import clientframe.GameInterface;
 import clientframe.PanelChat;
 import clientframe.PanelDisc;

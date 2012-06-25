@@ -1,7 +1,7 @@
 
-package biuromatr;
+package wtomigraj;
 
-import static biuromatr.Utils.*;
+import static wtomigraj.Utils.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import org.json.JSONObject;
  * 
  * @author grzes
  */
-public class BiuroMatr implements Runnable
+public class Wtomigraj implements Runnable
 {
     /** Main method just starts the server thread.
      * 
@@ -47,10 +47,10 @@ public class BiuroMatr implements Runnable
                     System.exit(1);
                 }
             }
-            new Thread(new BiuroMatr(port)).start();
+            new Thread(new Wtomigraj(port)).start();
         } catch (SocketException ex)
         {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -58,7 +58,7 @@ public class BiuroMatr implements Runnable
      * Constructor creates socket object bound to port 6666.
      * @throws SocketException 
      */
-    BiuroMatr(int port) throws SocketException
+    Wtomigraj(int port) throws SocketException
     {
         ds = new DatagramSocket(port);   
     }
@@ -91,7 +91,7 @@ public class BiuroMatr implements Runnable
             System.out.println("Server is running.");
             receiver.getListening().join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -174,7 +174,7 @@ public class BiuroMatr implements Runnable
             for (String nick: deadNicks)
                 leaveChannel(nick);
         } catch (IOException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -199,7 +199,7 @@ public class BiuroMatr implements Runnable
                         else h.handle(dinfo);
                     }
                 } catch (Exception ex) {
-                    Logger.getLogger(BiuroMatr.class.getName())
+                    Logger.getLogger(Wtomigraj.class.getName())
                             .log(Level.SEVERE, null, ex);                    
                 }
             }
@@ -232,7 +232,7 @@ public class BiuroMatr implements Runnable
                     handleNewClient(dinfo);
                 } catch (IOException ex)
                 {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -256,7 +256,7 @@ public class BiuroMatr implements Runnable
                     handleNewChannel(dinfo);
                 } catch (IOException ex)
                 {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -271,7 +271,7 @@ public class BiuroMatr implements Runnable
                     handleExit(dinfo);
                 } catch (IOException ex)
                 {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -286,7 +286,7 @@ public class BiuroMatr implements Runnable
                     handleSendChannels(dinfo);
                 } catch (IOException ex)
                 {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -301,7 +301,7 @@ public class BiuroMatr implements Runnable
                     handleJoin(dinfo);
                 } catch (IOException ex)
                 {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -316,7 +316,7 @@ public class BiuroMatr implements Runnable
                     handleStartGame(dinfo);
                 } catch (IOException ex)
                 {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -337,7 +337,7 @@ public class BiuroMatr implements Runnable
         try {
             res.put("desc", "You didn't register.");
         } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
         send(ds, dinfo.getSender(), res);
     }    
@@ -356,7 +356,7 @@ public class BiuroMatr implements Runnable
         try {
             res.put("desc", "Invalid request.");
         } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
         send(ds, dinfo.getSender(), res);
     }
@@ -382,7 +382,7 @@ public class BiuroMatr implements Runnable
                 res.put("desc", "Request 'newclient' should"
                         + " contain fields 'nick' and 'game'.");                
             } catch (JSONException ex2) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex2);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex2);
             }
             send(ds, dinfo.getSender(), res);
             return ;
@@ -393,7 +393,7 @@ public class BiuroMatr implements Runnable
                 res.put("type", "invalidnick");
                 res.put("desc", "Given nick is invalid.");                
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, dinfo.getSender(), res);
             return ;
@@ -405,7 +405,7 @@ public class BiuroMatr implements Runnable
                 res.put("type", "error");
                 res.put("desc", "Unknown game " + game + ".");                
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, dinfo.getSender(), res);
             return ;            
@@ -424,7 +424,7 @@ public class BiuroMatr implements Runnable
                 res.put("nick", nick);
                 res.put("channels", chNames);
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, dinfo.getSender(), res);
         }
@@ -436,7 +436,7 @@ public class BiuroMatr implements Runnable
                 res.put("nick", nick);
                 res.put("channels", channelNames);
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, dinfo.getSender(), res);
         }
@@ -446,7 +446,7 @@ public class BiuroMatr implements Runnable
                 res.put("type", "invalidnick");
                 res.put("desc", "Nick is already taken.");
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, dinfo.getSender(), res);
         }            
@@ -498,7 +498,7 @@ public class BiuroMatr implements Runnable
                 res.put("desc", "You are in channel already.");
                 res.put("name", ch.name);
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }            
             send(ds, dinfo.getSender(), res);
             return ;
@@ -512,7 +512,7 @@ public class BiuroMatr implements Runnable
                 res.put("desc", "Given channel name is invalid.");
                 res.put("name", chName); 
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }               
             send(ds, dinfo.getSender(), res);
             return ;
@@ -524,7 +524,7 @@ public class BiuroMatr implements Runnable
                 res.put("desc", "Given channel name is already taken.");
                 res.put("name", chName);   
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }             
             send(ds, dinfo.getSender(), res);
             return ;
@@ -545,7 +545,7 @@ public class BiuroMatr implements Runnable
                 res.put("type", "error");
                 res.put("desc", "Unknown game " + game);   
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, dinfo.getSender(), res);
         }
@@ -556,7 +556,7 @@ public class BiuroMatr implements Runnable
                 res.put("type", "channelaccepted");
                 res.put("name", chName);   
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, dinfo.getSender(), res);
             names.add(chName);        
@@ -572,7 +572,7 @@ public class BiuroMatr implements Runnable
             String game = dinfo.getJson().getString("game");
             res.put("channels", channelNames.get(game));
         } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
         send(ds, dinfo.getSender(), res);
     }
@@ -602,7 +602,7 @@ public class BiuroMatr implements Runnable
             res.put("channels", names);
             send(ds, dinfo.getSender(), res);
         } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -617,7 +617,7 @@ public class BiuroMatr implements Runnable
                 res.put("type", "invalidrequest");
                 res.put("desc", "Channel name is invalid.");
             } catch (JSONException ex1) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex1);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex1);
             }
             send(ds, dinfo.getSender(), res);
             return ;
@@ -643,7 +643,7 @@ public class BiuroMatr implements Runnable
                     send(ds, guest.ai, res);     
                 }        
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);            
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);            
             }
         }
         else if (ch == null) 
@@ -653,7 +653,7 @@ public class BiuroMatr implements Runnable
                 res.put("desc", "No such channel.");
                 res.put("name", name);
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, guest.ai, res);
         }
@@ -665,7 +665,7 @@ public class BiuroMatr implements Runnable
                 res.put("desc", "Channel is full.");
                 res.put("name", name);
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, guest.ai, res);
         }
@@ -675,7 +675,7 @@ public class BiuroMatr implements Runnable
                 res.put("type", "joinaccepted");
                 res.put("name", name);
             } catch (JSONException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
             send(ds, guest.ai, res);            
             ch.setGuest(guest);
@@ -724,7 +724,7 @@ public class BiuroMatr implements Runnable
             json.put("address", snd.ai.getAdressString());
             json.put("port", snd.ai.getPort());
         } catch (JSONException ex) {
-            Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         try {
@@ -735,7 +735,7 @@ public class BiuroMatr implements Runnable
             try {
                 leaveChannel(fst.nick);
             } catch (IOException ex1) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex1);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex1);
             }
             return ;
         }        
@@ -758,11 +758,11 @@ public class BiuroMatr implements Runnable
                     try {
                         json.put("nick", nick);
                     } catch (JSONException ex) {
-                        Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     ch.host.toClient.send(json, resHandler);
                 } catch (ConnectionException ex) {
-                    Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } 
         }        
@@ -780,7 +780,7 @@ public class BiuroMatr implements Runnable
                 JSONObject json = makeJSON("channelcanceled");
                 guest.toClient.send(json, resHandler);
             } catch (ConnectionException ex) {
-                Logger.getLogger(BiuroMatr.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Wtomigraj.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

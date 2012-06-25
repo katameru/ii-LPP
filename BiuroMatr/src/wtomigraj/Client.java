@@ -1,7 +1,7 @@
 
-package biuromatr;
+package wtomigraj;
 
-import static biuromatr.Utils.*;
+import static wtomigraj.Utils.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

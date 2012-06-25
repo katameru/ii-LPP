@@ -1,5 +1,5 @@
 
-package biuromatr;
+package wtomigraj;
 
 /**
  *
