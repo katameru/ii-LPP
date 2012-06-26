@@ -31,11 +31,11 @@ Kurs C++;Other;Kurs;300;366;15
 Teoria grafów;Topic;Matematyka Dyskretna;560;407;15
 Idziesz do ryjca!;ToPrison;;;460;25
 Programowanie dynamiczne;Topic;AiSD;600;470;52
-Haszowanie;Topic;AiSD;600;655;75
-Szansa;BChance;;;655;98
-RBT,AVL i B-drzewa;Topic;AiSD;640;655;120
-Bazy danych;Other;Półobowiązek;80;655;143
-Szansa;RChance;;;655;166
-Błędy numeryczne;Topic;Analiza numeryczna;700;655;189
-Kolokwium!;Loss;;200;655;212
-Interpolacja;Topic;Analiza numeryczna;800;655;235
+Haszowanie;Topic;AiSD;600;470;75
+Szansa;BChance;;;470;98
+RBT i AVL;Topic;AiSD;640;470;120
+Bazy danych;Other;Półobowiązek;80;470;143
+Szansa;RChance;;;470;166
+Błędy numeryczne;Topic;Analiza numeryczna;700;470;189
+Kolokwium!;Loss;;200;470;212
+Interpolacja;Topic;Analiza numeryczna;800;470;235
