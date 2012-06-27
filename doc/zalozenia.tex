@@ -32,27 +32,27 @@
 \section{Wstęp}
 
 \subsection{Cel dokumentu}
-Poniższy dokument opisuje ogólne założenia dotyczące platformy Wtomigraj. Przedstawiamy tu profil potencjalnych użytkowników oraz podstawowe przypadki użycia. W dokumencie zebrane są istotne cechy oprogramowania Wtomigraj oraz stawiane przed nim wymagania. Szczegółowe informacje na temat projektu i protokołu stosowanego przez platformę można znaleźć z załączonym dokumencie ,,Wtomigraj -- Opis architektury''. Ponadto dołączamy opisy dwóch gier stworzonych przy użyciu platformy Wtomigraj.
+Poniższy dokument opisuje ogólne założenia dotyczące platformy Wtomigraj. Przedstawiamy tu profil potencjalnych użytkowników oraz podstawowe przypadki użycia. W dokumencie są też zebrane istotne cechy platformy oraz stawiane przed nią wymagania. Szczegółowe informacje na temat projektu i protokołu stosowanego przez platformę można znaleźć z załączonym dokumencie ,,Wtomigraj -- Opis architektury''. Ponadto dołączamy opisy dwóch gier stworzonych przy użyciu platformy Wtomigraj.
 
 \subsection{Dlaczego Wtomigraj}
-Wśród użytkowników internetu można zaobserwować znaczne zapotrzebowanie na prostą rozrywkę, na przykład w postaci gier internetowych. Zazwyczaj są one używane w chwilach przerwy od innych działań, pomagając przez jakiś czas odetchnąć od wykonywanej pracy. Zaletą tych gier w stosunku do gier ze sklepowych półek są: intuicyjne sterowanie i nieskomplikowane zasady, a~także ich bezpłatność oraz fakt, że gry internetowe nie wymagają żadnego instalowania. W odpowiedzi na oczekiwania internautów, w Sieci znalazło się wiele portali z grami. Jednak większość z nich oferuje jedynie gry dla pojedynczego gracza. Tymczasem rosnącą popularnością cieszą się gry wieloosobowe, w~których gracze mogą rywalizować nie tylko ze sztuczną inteligencją, ale też z innymi ludźmi. Wtomigraj wychodzi naprzeciw temu zapotrzebowaniu przedstawiając wygodne API do tworzenia gier sieciowych.
+Wśród użytkowników internetu można zaobserwować wysokie zainteresowanie grami przygodnymi (ang. ,,casual games''). Określa się tak gry, w których granie nie wymaga poświęcenia dużej ilości uwagi, czasu i wysiłku. Najczęściej są to gry które mogą być wyświetlane w przeglądarce, dzięki czemu odbiorca nie musi tracić czasu na instalację gry na komputerze a może uruchomić grę na przykląd bezpośrednio z~Facebooka. Rynek tych gier jest rzeczywiście bardzo duży: jedna z największych firm, Zynga, ma roczne przychody rzędu 300 milionów dolarów. W odpowiedzi na oczekiwania internautów, w Sieci znalazło się wiele portali z grami, jednak większość z~nich oferuje jedynie gry w trybie jednego gracza. Tymczasem dużą popularnością cieszą się gry wieloosobowe, w których gracze mogą rywalizować nie tylko ze sztuczną inteligencją, ale też z innymi ludźmi. Wtomigraj wychodzi naprzeciw temu zapotrzebowaniu przedstawiając wygodny interfejs programowania aplikacji oraz gotowe serwery mające na celu ułatwienie tworzenia gier komunikujących się przez internet.
 
 \section[Opis użytkownika]{Opis użytkownika}
 
 \subsection[Opis użytkowników]{Opis użytkowników}
-Użytkownikami naszej platformy są programiści, który będą korzystać z udostępnionej biblioteki do tworzenia własnych gier sieciowych. Dzięki niej będą mogli skupić się na implementowaniu istoty gry bez konieczności martwienia się o szczegóły komunikacji między graczami. 
+Użytkownikami platformy Wtomigraj są programiści, który będą korzystać z gotowych funkcji i programów do tworzenia własnych gier sieciowych. Dzięki naszej platformie będą mogli skupić się na implementowaniu funkcjonalości gry bez konieczności martwienia się o szczegóły komunikacji przez internet. 
 
 \subsection[Dane statystyczne dot. użytkowników i rynku]{Dane statystyczne dotyczące użytkowników i rynku}
-Jak podaje portal http://www.tiobe.com język Java, w którym napisana jest nasza biblioteka jest obecnie drugim co do popularności językiem programowania. Oznacza to, że liczba programistów, którzy mogą zainteresować się naszą platformą jest bardzo duża.
+Jak podaje portal http://www.tiobe.com język Java, w którym napisana jest nasza platforma jest obecnie drugim co do popularności językiem programowania. Oznacza to, że liczba programistów, którzy mogą zainteresować się naszą platformą jest bardzo duża.
 
 \subsection[Podstawowe potrzeby użytkownika]{Podstawowe potrzeby użytkownika}
-Podstawową potrzebą użytkowników platformy jest otrzymanie prostej w użyciu biblioteki programistycznej, dzięki której nie będą musieli samemu programować komunikacji między dwoma komputerami w sieci. Biblioteka powinna być prosta, tak by nie trzeba było wiele czasu poświęcać nauce jej używania, a także elastyczna, tak by programista nie był ograniczony przy tworzeniu własnej gry.
+Podstawową potrzebą użytkowników platformy jest otrzymanie prostej w użyciu biblioteki programistycznej, dzięki której nie będą musieli samemu programować komunikacji między dwoma komputerami przez internet. Biblioteka powinna być prosta, tak by nie trzeba było wiele czasu poświęcać nauce jej używania, a także elastyczna, tak by programista nie był ograniczony przy tworzeniu własnej gry.
 
 \section[Ogólny opis produktu]{Ogólny opis produktu}
 Wtomigraj jest platformą programistyczną, służącą tworzeniu aplikacji internetowych, które umożliwią skomunikowanie się dwóch lub więcej komputerów w Internecie, w celu odbycia wspólnej gry.
 
 \subsection[Schemat produktu]{Schemat produktu}
-Wtomigraj składa się z dwóch części. Pierwszą jest serwer, który pośredniczy w nawiązaniu połączenia między aplikacjami graczy. Drugą częścią jest biblioteka zawierająca klasę klienta. Pozwala ona zmniejszyć narzut programistyczny na wykorzystanie możliwości serwera poprzez dostarczenie odpowiednich klas i funkcji do komunikacji z serwerem. Programista gry nie musi przykładowo wnikać w szczegóły opracowanego przez nas protokołu, wystarczy wywoływać odpowiednie metody biblioteczne. 
+Wtomigraj składa się z dwóch części. Pierwszą jest serwer, który pośredniczy w nawiązaniu połączenia między aplikacjami graczy. Drugą częścią jest implementacja klienta mogącego komunikować się z tym serwerem. Pozwala ona zmniejszyć narzut programistyczny na wykorzystanie możliwości serwera poprzez dostarczenie odpowiednich klas i funkcji do komunikacji z serwerem. Programista gry nie musi na przykład wnikać w szczegóły opracowanego przez nas protokołu, musi jedynie umieć wywołać odpowiednie metody biblioteczne. 
 
 \subsection[Podsumowanie możliwości]{Podsumowanie możliwości}
 Platforma Wtomigraj jest olbrzymim ułatwieniem dla programisty gdyż:
@@ -68,13 +68,13 @@ Aby kompilować kod oparty o platformę Wtomigraj potrzebne jest JDK co najmniej
 
 \section[Cechy produktu]{Cechy produktu}
 \paragraph{Serwer obsługuje wiele gier.} Dzięki temu wystarczy uruchomić jeden serwer, aby równoczesnie obsługiwać, np. szachistów i brydżystów.
-\paragraph{Dodawanie nowych gier do serwera.} Wystarczy zedytować prosty plik konfiguracyjny.
-\paragraph{Komunikacja klient-serwer.} Jest kompletna i użytkownik naszej platformy nie musi się nią martwić.
+\paragraph{Dodawanie nowych gier do serwera.} Wystarczy wprowadzić zmiany w pliku konfiguracyjnym.
+\paragraph{Komunikacja klient-serwer.} Jest całkowicie obsługiwana przez bibliotekę i użytkownik naszej platformy nie musi się nią martwić.
 \paragraph{Komunikacja klient-klient.} Realizowane jest nawiązywanie połączenia pomiędzy klientami, a także wysyłanie pakietów w formacie JSON pomiędzy nimi. Programiście gry pozostaje zaimplementować zapis i odczyt danych gry z pakietu JSON.
 
-\section[Podstawowe przypadki użycia]{Podstawowe przypadki użycia}
-\subsection{Uruchomienie serwera.} Serwer jest gotowy do użycia, jego kod nie wymaga od programisty żadnych zmian. Programista musi tylko w pliku konfiguracyjnym dodać nazwę swojej gry, aby serwer zaczął obsługiwać klientów pragnących grać w tę grę.
-\subsection{Pisanie własnej gry.} W skład platformy Wtomigraj wchodzi biblioteka ułatwiająca tworzenie własnej gry sieciowej. Najważniejsza jej klasa to Client. Twórca gry powinien utworzyć instancję tej klasy i za jej pomocą nawiązać połączenie z serwerem i wysyłać dane do innych klientów.
+\section[Przykładowe przypadki użycia]{Przykładowe przypadki użycia}
+\subsection{Stworzenie serwisu z grami.} Firma tworzy gry wieloosobowe przy użyciu naszej platformy i umieszcza je w swoim serwisie. Komunikacja pomiędzy wszystkimi grami jest obsługiwana przez jeden serwer wspólny dla wszystkich gier co ogranicza koszty tworzenia i wdrażania osobnych serwerów dla każdej gry. Korzystanie z jednolitego interfejsu ułatwia tworzenie nowych gier.
+\subsection{Pisanie własnej gry.} Programista tworzy grę korzystając z naszej platformy. Oszczędza dzięki temu czas który może spędzić szlifując szczegóły gry. Serwer rozprowadzany jest razem z grą, dzięki czemu nie jest konieczny centralny serwis aby grać przez sieć. Można nawet grać przez sieć lokalną, bez internetu.
 
 \section{Inne wymagania}
 \subsection{Licencjonowanie i instalacja.}
