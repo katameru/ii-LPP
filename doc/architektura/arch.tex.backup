@@ -15,6 +15,8 @@
 \author{Marcin Januszkiewicz, Grzegorz Łoś}
 \title{\textbf{Wtomigraj} -- Opis architektury}
 
+\input{titlepage.sty}
+
 \begin{document}
 
 %\makeatletter
@@ -22,21 +24,7 @@
   %  \renewcommand\numberline[1]{#1.\hskip0.7em}
 %\makeatother
 
-\begin{titlepage}
-\begin{center}
-
-\thispagestyle{empty}
-{\Large Licencjacka Pracowania Oprogramowania}\\[0.5cm]
-{\Large Grupa 21, Instytut Informatyki Uniwersytetu Wrocławskiego 2011/12}\\[2.5cm]
-
-{\large Marcin Januszkiewicz, Grzegorz Łoś}\\[0.5cm]
-{\huge \textbf{Wtomigraj}}\\[0.5cm]
-{\huge Architektura projektu}\\[0.5cm]
-\vfill
-{\large Wrocław, \today}
-
-\end{center}
-\end{titlepage}
+\newtitle{Architektura projektu}
 
 \setcounter{page}{2}
 
@@ -46,192 +34,204 @@
 
 \section{Ogólny opis architektury}
 
-Użytkownicy platformy Wtomigraj wchodzą na portal internetowy, na którym przedstawione są dostępne gry. Użytkownik wybiera podstronę, na której znajduje się aplet z grą, która go interesuje. Aplet ten jest klientem, który połączy się z programem uruchomionym na serwerze dedykowanym. Dla każdej gry na serwerze zostanie przeznaczony osobny port. Każdy użytkownik może zostać gospodarzem nowej rozgrywki lub przyłączyć się do (nierozpoczętej) rozgrywki. Serwer służy tylko jako pośrednik w nawiązaniu połączenia pomiędzy graczami zainteresowanymi odbyciem wspólnej partii. Kiedy do nierozpoczętej rozgrywki dołączy minimalna liczba wymaganych graczy (zależy ona od gry), to rozgrywka może zostać rozpoczęta. Serwer nie ma żadnego udziału w przebiegu rozgrywki. Wszyscy goście komunikują się wyłącznie z gospodarzem. Wszystkie obiekty związane z grą znajdują się w pamięci komputera gospodarza. Klient gospodarza wysyła gościom informację o zmianach stanów tych obiektów, a klienci-goście wyświetlają je swoim użytkownikom na ekranach monitorów i przekazują gospodarzowi ich ruchy. Po zakończeniu rozgrywki wszyscy klienci ponownie komunikują się z serwerem, który może pośredniczyć w zainicjowaniu kolejnej rozgrywki. Przedstawia to Rysunek~\ref{fig:arch}.
+Wtomigraj jest platformą programistyczną, służącą tworzeniu aplikacji internetowych, które umożliwią skomunikowanie się dwóch lub więcej komputerów w Internecie, w celu odbycia wspólnej gry. Wtomigraj składa się z dwóch części. Pierwszą jest serwer, który pośredniczy w nawiązaniu połączenia między aplikacjami graczy. Drugą częścią jest biblioteka zawierająca klasę klienta. Pozwala ona zmniejszyć narzut programistyczny na wykorzystanie możliwości serwera poprzez dostarczenie odpowiednich klas i funkcji do komunikacji z serwerem. Programista gry nie musi przykładowo wnikać w szczegóły opracowanego przez nas protokołu, wystarczy wywoływać odpowiednie metody biblioteczne. 
+
+Każdy klient może zostać gospodarzem nowej gry lub przyłączyć się do nierozpoczętej gry (mówimy wtedy, że jest gościem). Kiedy do nierozpoczętej partii dołączy minimalna liczba wymaganych graczy (zależy ona od gry), to partia może zostać rozpoczęta. Serwer służy tylko jako pośrednik w nawiązaniu połączenia pomiędzy graczami zainteresowanymi odbyciem wspólnej partii, nie ma żadnego udziału w jej przebiegu. Wszyscy goście komunikują się wyłącznie z gospodarzem. Wszystkie obiekty związane z grą znajdują się w pamięci komputera gospodarza. Klient gospodarza wysyła gościom informacje o zmianach stanów tych obiektów, a klienci-goście wyświetlają je swoim użytkownikom na ekranach monitorów i przekazują gospodarzowi ich ruchy. Po zakończeniu gry wszyscy klienci ponownie komunikują się z serwerem, który może pośredniczyć w zainicjowaniu kolejnej partii. Schemat architektury przedestawiono na rysunku~\ref{fig:arch}.
+
+Końcowymi użytkownikami są internauci pragnący pograć z innymi ludźmi. Programista gry korzystający z platformy Wtomigraj powinien na wydzielonym serwerze uruchomić program serwera oraz udostępnić użytkownikom grę, na przykład w postaci aplikacji okienkowej w pakiecie jar lub jako aplet osadzony na stronie internetowej.
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.6]{rysunki/arch.png}
-\caption{Schemat architektury}
+\caption{Schemat komunikacji klientów i serwera}
 \label{fig:arch}
 \end{figure}
 
-\subsection{Rozgrywka}
-Rozgrywka może znajdować się w jednym z trzech stanów:
+\subsection{Stany partii}
+Partia może znajdować się w jednym z trzech stanów:
 \begin{enumerate}
- \item \textbf{Nierozpoczęta.} W tym stanie do rozgrywki mogą dołączać gracze. Nazwa rozgrywki jest widoczna w aplikacjach klientów znajdujących się w trybie menu (Rysunek~\ref{fig:menu}). Gospodarz rozgrywki może ustawiać parametry związane z grą (Rysunek~\ref{fig:inicjacja}). 
+ \item \textbf{Nierozpoczęta.} W tym stanie do rozgrywki mogą dołączać gracze. Nazwa rozgrywki jest widoczna w aplikacjach klientów znajdujących się w trybie menu. Gospodarz rozgrywki może ustawiać parametry związane z grą. 
 
- \item \textbf{Rozpoczęta.} Nazwa rozgrywki znika z listy widocznej na Rysunku~\ref{fig:menu}, użytkownicy tracą możliwość dołącznia do niej. Gospodarz otrzymuje od serwera gniazda do gości, a goście gniazdo do gospodarza. Na komputerze gospodarza inicjowane są wszystkie obiekty związane z grą i rozgrywka się rozpoczyna.
+ \item \textbf{Rozpoczęta.} Nazwa rozgrywki znika z listy widocznej na rysunku~\ref{fig:menu}, użytkownicy tracą możliwość dołącznia do niej. Gospodarz otrzymuje od serwera adresy gości, a goście adres gospodarza. Na komputerze gospodarza inicjowane są wszystkie obiekty związane z grą i partia się rozpoczyna.
 
- \item \textbf{Zakończona.} Rozgrywka się zakończyła, lecz gospodarz jeszcze jej nie opuścił.
+ \item \textbf{Zakończona.} Rozgrywka się zakończyła, lecz gospodarz jeszcze jej nie opuścił. W tym stanie gracze mogą oglądać wyniki, analizować statystyki gry lub dyskutować nad przebiegiem partii.
 \end{enumerate}
 
 \subsection{Tryby klienta}
 Aplikacja klienta w każdym momencie znajduje się w jednym z trzech trybów.
 
-\paragraph{Tryb menu.} Jest to tryb ``międzyrozgrywkowy''.
+\paragraph{Tryb menu.} Jest to tryb pomiędzy partiami.
+
+Aplikacja prezentuje swojemu użytkownikowi rozgrywki, do których może się przyłączyć, daje możliwość rozpoczęcia nowej rozgrywki oraz porozmawiania z pozostałymi graczami. Przedstawiono to na rysunku~\ref{fig:menu}. 
+
+\paragraph{Tryb gospodarza.} W tym trybie klient staje się gospodarzem partii. Początkowo oczekuje aż dołączy odpowiednio wielu graczy. Użytkownicy, których klienci znajdują się w trybie menu, widzą tę partię na swoim panelu i mogą do niej dołączyć. W tym czasie gospodarz może ustawić parametry związane z grą, co przedstawia rysunek~\ref{fig:inicjacja}.
+
+
+Po pojawieniu się wymaganej liczby graczy partia może zostać rozpoczęta. Znika wówczas z listy dostępnych gier. Aplikacja gospodarza odpowiada za wykonywanie wszelkich obliczeń i operacji związanych z grą. Wszystkich gości informuje tylko o zmianach stanów istotnych obiektów, tak aby aplikacje gości mogły je należycie wyświetlić swoim użytkownikom. Goście przekazują swoje ruchy gospodarzowi, który uwzględnia je w logice gry. Ponadto aplikacja w trybie hosta wykonuje te same zadania, co aplikacja w trybie gościa, ponieważ jej użytkownik także jest graczem.
+
+\paragraph{Tryb gościa.} W tym trybie aplikacja służy do wyświetlania stanu gry swojemu użytkownikowi oraz przekazywania jego ruchów gospodarzowi partii.
+
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.8]{rysunki/menu.png}
-\caption{Aplikacja w trybie menu.}
+\caption{Aplikacja w stanie menu}
 \label{fig:menu}
 \end{figure}
 
-Aplikacja prezentuje swojemu użytkownikowi rozgrywki, do których może się przyłączyć, daje możliwość rozpoczęcia nowej rozgrywki oraz porozmawiania z pozostałymi graczami na czacie. Przedstawia to Rysunek~\ref{fig:menu}. Jeśli użytkownik postanowi zostać gospodarzem nowej rozgrywki wyświetli mu się okienko dialogowe przedstawione na Rysunku~ \ref{fig:nowagra}. Użytkownik nadaję rozgrywce nazwę, która zostanie zaprezentowana pozostałym graczom. Rozgrywka może być publiczna -- wtedy każdy użytkownik może do niej dołączyć, lub prywatna, wtedy należy podać hasło pozwalające na dołączenie do rozgrywki. 
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.8]{rysunki/nowagra.png}
-\caption{Rozpoczynanie nowej rozgrywki.}
-\label{fig:nowagra}
-\end{figure}
-
-\paragraph{Tryb hosta.} W tym trybie klient staje się gospodarzem rozgrywki. Początkowo oczekuje aż dołączy odpowiednio wielu graczy. Użytkownicy, których klienty znajdują się w trybie menu, widzą tę rozgrywkę na swoim panelu i mogą do niej dołączyć. W tym czasie gospodarz może ustawić parametry związane z grą, co przedstawia Rysunek~\ref{fig:inicjacja}.
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.8]{rysunki/inicjacja.png}
-\caption{Przykładowy panel gospodarza przed rozpoczęciem rozgrywki.}
+\caption{Przykładowy panel gospodarza przed rozpoczęciem rozgrywki}
 \label{fig:inicjacja}
 \end{figure}
 
-Po pojawieniu się wymaganej liczby graczy rozgrywka może zostać rozpoczęta. Znika wówczas z listy dostępnych rozgrywek. Aplikacja gospodarza odpowiada za wykonywanie wszelkich obliczeń i operacji związanych z grą. Wszystkich gości informuje tylko o zmianach stanów istotnych obiektów, tak aby aplikacje gości mogły je należycie wyświetlić swoim użytkownikom. Goście przekazują swoje ruchy gospodarzowi, który uwzględnia je w logice gry. Ponadto aplikacja w trybie hosta wykonuje te same zadania, co aplikacja w trybie gościa, ponieważ jej użytkownik także jest graczem.
+\section{Zadania elementów systemu}
 
-\paragraph{Tryb gościa.} W tym trybie aplikacja służy do wyświetlania stanu gry swojemu użytkownikowi oraz przekazywania jego ruchów gospodarzowi rozgrywki.
-
-\subsection{Wątki serwera.}
-Hierarchię wątków przedstawia Rysunek~\ref{fig:watki}.
-
-\begin{figure}
-\centering
-\includegraphics{rysunki/watki.png}
-\caption{Wątki serwera.}
-\label{fig:watki}
-\end{figure}
-
-Główny wątek serwera udostępnia panel administracyjny, przy pomocy którego można dodawać nowe gry, albo usuwać je, jeżeli nie cieszą się zainteresowaniem, blokować użytkowników jeżeli szkodzą oni innym, na przykład nadużywając wulgaryzmów na czacie, itp.
-
-Dodanie nowej gry tworzy nowy wątek. Odpowiada on za nasłuchiwanie na przeznaczonym dla niego porcie. Po nawiązaniu połącznia z klientem tworzony jest wątek dla tego klienta.
-
-Wątek klienta odpowiada za komunikację z nim. Została ona opisana w sekcji~\ref{sec:komunikacja}.
-
-\subsection{Zadania elementów systemu}
-\paragraph{Serwer www.}
-Strona internetowa w elegancki sposób przedstawia ofertę gier. Służy lokalnym maszynom do ``pobrania'' apletu.
-
-\paragraph{Serwer dedykowany.}
-Dla każdej gry tworzy odzielny wątek do obsługi tej gry, który:
+\paragraph{Serwer.} Służy skomunikowaniu aplikacji klientów. Może obsługiwać dowolnie wiele rodzajów gier.
+Serwer
 \begin{itemize}
- \item przechowuje listę gniazd klientów,
- \item rozpropagowuje wiadomości wysłane na czacie,
- \item pośredniczy w rozpoczęciu rozgrywki przez graczy.
+ \item przechowuje adresy klientów, ich pseudonimy, oraz odnośniki do partii w jakich się znajdują,
+ \item rozsyła listę dostępnych partii pożądanej gry (aplikacja klienta wysyła informację do serwera jaka gra ją interesuje, bo serwer może jednocześnie służyć np. szachistom i brydżystom),
+ \item pośredniczy w nawiązaniu komunikacji przez gospodarza i gościa.
 \end{itemize}
 
-\paragraph{Aplet.}
+\paragraph{Aplikacja klienta.} Jest implementacją pewnej gry, korzystającą ze stworzonej przez nas biblioteki do komunikacji. 
+
 \begin{enumerate}
  \item W trybie menu:
     \begin{itemize}
-      \item umożliwia komunikację użytkowników poprzez czata,
-      \item przedstawia listę nierozpoczętych rozgrywek,
-      \item daje możliwość dołączenia do nierozpoczętej rozgrywki lub założenia nowej.
+      \item umożliwia tekstową komunikację użytkowników w okienku czata,
+      \item przedstawia listę nierozpoczętych partii,
+      \item daje możliwość dołączenia do nierozpoczętej partii lub założenia nowej.
     \end{itemize}
 
- \item W trybie hosta:
+ \item W trybie gospodarza:
     \begin{itemize}
-      \item służy ustawieniu parametrów rozgrywki i jej rozpoczęciu,
+      \item przechowuje adresy klientów gości,
+      \item trzyma w pamięci wszystkie obiekty związane z partią, 
+      \item służy ustawieniu parametrów partii i jej rozpoczęciu,
       \item odpowiada za uaktualnianie logiki rozgrywki,
       \item przyjmuje od gości informacje o ich ruchach,
-      \item wysyła gościom informacje o aktualnym stanie rozgrywki,
-      \item pełni także takie funkcje jak klienty w trybie gościa, ponieważ gospodarz także jest graczem.
+      \item wysyła gościom informacje o aktualnym stanie partii,
+      \item pełni także funkcje klienta w trybie gościa, ponieważ gospodarz także jest graczem.
     \end{itemize}
 
  \item W trybie gościa:
     \begin{itemize}
-      \item przyjmuje od gospodarza komunikaty o aktualnym stanie rozgrywki,
-      \item wyświetla użytkownikowi stan rozgrywki (na przykład w przypadku szachów będzie do rysunek szachownicy i bierek),
-      \item oczekuje na ruchy swojego użytkownika (w przypadku szachów kliknięcia na bierki i pola), a następnie wysła je gospodarzowi.
+      \item przechowuje adres gospodarza,
+      \item przyjmuje od gospodarza komunikaty o aktualnym stanie partii,
+      \item wyświetla użytkownikowi stan gry (na przykład w przypadku szachów będzie do rysunek szachownicy i bierek),
+      \item oczekuje na ruchy swojego użytkownika (w przypadku szachów kliknięcia na bierki i pola), a następnie wysyła je gospodarzowi.
     \end{itemize}
 \end{enumerate}
 
-\section{Dane przechowywane przez elementy systemu}
-\begin{Large}
-\textcolor{red}{Do poprawienia!}
-\end{Large}
-\subsection{Klient}
-Niezależnie do trybu klient ma w pamięci gniazdo umożliwiające komunikację z serwerem.
-Ponadto w trybie: 
-  \begin{itemize}
-   \item \textbf{hosta} - przechowuje gniazda służące do kontaktu z klientami-gośćmi. Posiada wszystkie obiekty związane z rozgrywką. 
-   \item \textbf{gościa} - przechowuje gniazdo przeznaczone do komunikacji z gospodarzem.
-  \end{itemize}
-\subsection{Serwer}
-Wątek gry przechowuje:
+
+\section{Opis protokołu}
+Komunikacja pomiędzy klientem a serwerem odywa się przez wymianę pakietów UDP z wiadomościami zawartymi w polach danych. W warstwie aplikacji protokół ma formę pytanie-odpowiedź, co zapewnia odporność na błędy sieci związane ze stratą pakietów. Wiadomości przesyłane są w formacie JSON, co pozwala na wykorzystanie istniejących bibliotek do prostego kodowania i dekodowania informacji.
+
+Każdy obiekt JSON zawiera pola:
 \begin{itemize}
- \item listę wszystkich połączonych klientów i ich pseudonimy,
- \item listę wszystkich rozgrywek,
- \item listę wszystkich wolnych klientów (będących w trybie menu),
- \item listę zajętych klientów wraz z referencjami do rozgrywki, w której biorą udział.
+ \item \texttt{type} -- typ komunikatu, łańcuch znaków. Wszystkie typy komunikatów omawiamy poniżej,
+ \item \texttt{res} -- pole boolowskie ustawione na true, gdy pakiet jest odpowiedzią, w przeciwnym razie jest to pytanie,
+ \item \texttt{id} -- w przypadku pakietów-pytań jest to numer identyfikacyjny pytania, natomiast dla odpowiedzi oznacza identyfikator pytania, na które odpowiadamy.
+\end{itemize}
+Ponadto dla każdego typu komunikatu obiekt JSON może zawierać dodatkowe pola.
+
+\paragraph{Inne pola.} Opisane poniżej pola występują w niektórych typach komunikatów.
+\begin{itemize}
+ \item \texttt{nick} -- pseudonim używany przez klienta.
+ \item \texttt{name} -- nazwa partii, do której odnosi się komunikat.
+ \item \texttt{game} -- nazwa (rodzaj) gry, do której odnosi się komunikat.
+ \item \texttt{channels} -- lista nazw partii, do których może dołączyć klient. 
+ \item \texttt{desc} -- słowny opis komunikatu.
 \end{itemize}
 
+
+\subsection{Typy komunikatów}
+\paragraph{Komunikaty wysyłane przez klienta do serwera.}
+\begin{description}
+ \item[newclient] -- komunikat informujący o chęci przyłączenia się do serwera. Zawiera pole \texttt{nick} (pożądany pseudonim).
+ \item[newchannel] -- komunikat będący prośbą o założenie nowej partii. Zawiera pola \texttt{name} oraz \texttt{game}.
+ \item[join] -- komunikat będący prośbą o przyłączenie do partii. Zawiera pola \texttt{name} oraz \texttt{game}.
+ \item[exit] -- komunikat będący informacją o odłączeniu od partii.
+ \item[sendchannels] -- komunikat będący prośbą o przesłanie listy partii do których może dołączyć klient. Zawiera pole \texttt{game}.
+ \item[emptyresponse] -- komunikat wysyłany w odpowiedzi na pytania, które \textit{de facto} są polecaniami i nie wymagają żadnej odpowiedzi, prócz potwierdzenia, że pakiet doszedł, np. \textbf{echorequest}, \textbf{channelcanceled}.
+\end{description}
+
+
+\paragraph{Komunikaty wysyłane przez serwera do klienta.}
+\begin{description}
+ \item[welcome] -- odpowiedź na \textbf{newclient}. Komunikat ten oznacza, że serwer zaakceptował wybrany identyfikator. Dla potwierdzenia znajduje się on w polu \texttt{nick}. Ponadto pakiet zawiera pole \texttt{channels}.
+ \item[invalidnick] -- odpowiedź na \textbf{newclient}. Komunikat ten oznacza, że wybrany identyfikator nie został zaakceptowany. Zawiera pola \texttt{errid} oraz \texttt{desc} oznaczające numer błędu oraz jego opis.
+ \item[echorequest] -- komunikat żądający od klienta potwierdzenia swojej obecności.
+ \item[channellist] -- odpowiedź na \textbf{sendchannels}. Zawiera pole \texttt{channels}.
+ \item[channelaccepted] -- odpowiedź na \textbf{newchannel}. Komunikat ten oznacza, że serwer akceptuje założenie przez klienta nowego kanału rozmowy.
+  \item[channelrejected] -- odpowiedź na \textbf{newchannel}. Komunikat ten oznacza, że serwer odrzuca założenie przez klienta nowego kanału rozmowy. W treści komunikatu przesyłany jest numer błędu i jego opis.
+ \item[joinaccepted] -- odpowiedź na \textbf{join}. Komunikat ten oznacza, że prośba klienta o dołączenie do pewnego kanału została zaakceptowana. W polu \texttt{name}, jako potwierdzenie, znajduje się nazwa kanału, do którego dołącza klient.
+  \item[joinrejected] -- odpowiedź na \textbf{join}. Komunikat ten oznacza, że prośba klienta o dołączenie do pewnego kanału została odrzucona.Zawiera pola \texttt{errid} oraz \texttt{desc} oznaczające numer błędu oraz jego opis.
+ \item[exitaccepted] -- odpowiedź na \textbf{exit}. Oznacza on, że klient został wypisany z kanału rozmowy. Ponadto w polu \texttt{channels} zawarta jest lista nazw kanałów, do których może dołączyć klient.
+ \item[address] -- Pakiet zawiera pola \texttt{address} oraz \texttt{port} będące adresem pewnego klienta. 
+ \item[channelcanceled] -- komunikat informujący klienta, że partia w której się znajduje przestał istnieć.
+ \item[userleft] -- komunikat informujący gospodarza, że partię w którym się znajduje opuścił użytkownik. W treści komunikatu przesyłany jest identyfikator odchodzącego użytkownika.
+ \item[error] -- komunikat wysyłany gdy wystąpi bład inny niż te opisane wyżej. Zawiera pola \texttt{errid} oraz \texttt{desc} oznaczające numer błędu oraz jego opis.
+\end{description}
+
+\paragraph{Komunikaty wysyłane prez klienta do klienta.}
+\begin{description}
+ \item[holepunch] -- Pakiet, który ma na celu ,,wybicie dziury'' (opisane w dziale \ref{sec:komunikacja}).
+ \item[icanhearyou] -- Odpowiedź na \textbf{holepunch}.
+ \item[gamedata] -- pakiet zawierający dane gry. Pozostałe pola pakietu są zdefiniowane przez programistę gry.
+\end{description}
+ 
 
 \section{Komunikacja między serwerem i klientami}
 \label{sec:komunikacja}
 
 \subsection{Komunikaty z serwera do klienta}
+Tabela~\ref{tab:serdokli} zawiera słowny opis komunikatów wysyłanych z serwera do klienta i pożądane zachowanie aplikacji klienta. 
 \begin{center}
- \begin{tabular}{p{1.3cm}||p{5.2cm}||p{7cm}}
- \hbox{Tryb} klienta& Rodzaj komunikatu & Co powinien zrobić klient?\\ \hline \hline
-\multirow{8}{*}{Menu}
-  & wiadomość na czacie
-  & Wyświetlić ją w okienku czata. \\ \cline{2-3}
+ \begin{tabular}{p{2cm}||p{5.2cm}||p{7cm}}
+ \hbox{Tryb} klienta& Rodzaj komunikatu & Co powinien zrobić klient\\ \hline \hline
+\multirow{6}{*}{Menu}
+  & Wiadomość
+  & Wyświetlić ją w stosownym okienku \\ \cline{2-3}
 
-  & lista wszystkich dostępnych rozgrywek
-  & Wypisać je na przeznaczonej do tego liście. \\ \cline{2-3}
+  & Lista dostępnych rozgrywek
+  & Wypisać je na przeznaczonej do tego liście \\ \cline{2-3}
 
-  & informacja o nowej rozgrywce
-  & Dopisać do listy dostępnych rozgrywek. \\ \cline{2-3}
+  & Akceptacja utworzenia nowej rozgrywki
+  & Przełączyć się w tryb gospodarza, wyświetlić panel z ustawieniami partii. \\ \cline{2-3}
 
-  & informacja o nieaktualności pewnej rozgrywki\footnotemark
-  & Usunąć z listy dostępnych rozgrywek. \\ \cline{2-3}
+  & Odrzucenie nowej partii
+  & Wyświetlić komunikat z przyczyną \\ \cline{2-3}
 
-  & akceptacja utworzenia nowej rozgrywki
-  & Przełączenie się w tryb hosta. \\ \cline{2-3}
+  & Akceptacja dołączenia do rozgrywki 
+  & Przejście w tryb gościa \\ \cline{2-3}
 
-  & odrzucenie nowej rozgrywki\footnotemark
-  & Wyświetlić komunikat z przyczyną. \\ \cline{2-3}
+  & Odrzucenie prośby o dołącznie do rozgrywki
+  & Wyświetlić komunikat z przyczyną \\ \hline \hline
 
-  & akceptacja dołączenia do rozgrywki 
-  & Przejście w tryb gościa. \\ \cline{2-3}
+\multirow{2}{*}{Gospodarz}
+  & Dołączenie gracza
+  & Sprawdzić czy można rozpocząć rozgrywkę \\ \cline{2-3}
 
-  & odrzucenie prośby o dołącznie do rozgrywki\footnotemark
-  & Wyświetlić ją w stosownym okienku. \\ \hline \hline
-
-\multirow{2}{*}{Host}
-  & dołączenie gracza
-  & Sprawdzić czy można rozpocząć rozgrywkę. \\ \cline{2-3}
-
-  & odejście gracza
-  & Jeżeli rozgrywka nie jest rozpoczęta, to być może należy wyłączyć możliwość rozpoczęcia gry. Jeżeli jest rozpoczęta, to postępownaie zależy od konkretnej gry. \\ \hline \hline
+  & Odejście gracza
+  & Jeżeli partia nie jest rozpoczęta, to być może należy wyłączyć możliwość rozpoczęcia gry. Jeżeli jest rozpoczęta, to postępowanie zależy od konkretnej gry \\ \hline \hline
 
   Gość
-  & odejście gospodarza
-  & Wyświetlić komunikat o przerwaniu gry i wrócić do trybu gościa. \\ \hline \hline
+  & Odejście gospodarza
+  & Wyświetlić komunikat o przerwaniu gry i wrócić do trybu menu \\ \hline \hline
 \end{tabular}
 \end{center}
 
-\footnotetext[1]{Przyczyną tego może być osiągnięcie maksymalnej liczby graczy, rezygnacja gospodarza, rozpoczęcie rozgrywki.}
-\footnotetext[2]{Z powodu nieprawidłowej nazwy rozgrywki - już istniejącej, zawierającej niedozwolne znaki, pustej, etc.}
-\footnotetext[3]{Nieprawidłowe hasło lub rozgrywka zapełniona (może się to zdarzyć jeśli dwóch graczy w tym samym momencie spróbuje dołączyć do gry, której brakuje jednego gracza).}
-
-Dodajmy jeszcze, że kiedy klient dołącza do gry serwer przekazuje mu gniazdo do komunikacji z hostem, a hostowi gniazdo do komunikacji z klientem. 
-
 \subsection{Komunikaty od klienta do serwera}
-
 \begin{center}
  \begin{tabular}{p{1.3cm}||p{3.5cm}||p{9cm}}
  \hbox{Tryb} klienta& Rodzaj komunikatu & Co powinien zrobić serwer?\\ \hline \hline
 \multirow{3}{*}{Menu}
-  & wiadomość na czacie
+  & Wiadomość
   & Rozpropagować wśród wszystkich wolnych klientów (tzn. będących w trybie menu). \\ \cline{2-3}
 
   & rozpoczęcie nowej rozgrywki
@@ -245,22 +245,33 @@ Dodajmy jeszcze, że kiedy klient dołącza do gry serwer przekazuje mu gniazdo 
     W przeciwnym razie wysłać klientowi komunikat o odrzuceniu rozgrywki. \\ \cline{2-3}
 
   & prośba o dołączenie do rozgrywki,
-  & Jeżeli z jakiegoś powodu klient nie może do niej dołączyć, to wysyłamy stosowny komunikat. W przeciwnym razie przepisujemy klienta z listy wolnych do zajętych z referencją do odpowiedniej rozgrywki.\\ \hline \hline
+  & Jeżeli z jakiegoś powodu klient nie może do niej dołączyć, to wysyłamy stosowny komunikat. W przeciwnym razie przepisujemy klienta z listy wolnych do zajętych z referencją do odpowiedniej rozgrywki.\\ \hline
+\end{tabular}
+\caption{Komunikaty z serwera do klienta}.
+\label{tab:serdokli}
+\end{center}
 
+
+\begin{center}
+ \begin{tabular}{p{1.3cm}||p{3.5cm}||p{9cm}}
+\hline
 \multirow{2}{*}{Host}
-  & odejście z gry
+  & odejście z rozgrywki
   & Wszystkim gościom wysyłamy komunikat o odejściu gospodarza. Przepisujemy wszystkich z listy zajętych do wolnych i usuwamy obiekt rozgrywki.\\ \cline{2-3}
 
-  & Rozpoczęcie rozgrywki
+  & rozpoczęcie rozgrywki
   & Informujemy wolnych klientów, że rozgrywka jest już nieaktualna.\\ \hline \hline
 
+Guest & odejście z rozgrywki & Usuwamy klienta z list zajętych i umieszczamy na liście wolnych. Wysyłamy gospodarzowi rozgrywki komunikat o odejściu gościa.
 
 \end{tabular}
 \end{center}
 
-\footnotetext{Patrz: odpowiedni przypis na poprzedniej stronie.}
 
 \subsection{Komunikacja gość-gospodarz}
+
+\paragraph{Nawiązywanie połączenia między klientami.} W celu skomunikowania dwóch klientów korzystamy z metody ,,wybijania dziur'' (ang. \textit{holepunching}). Polega ona na tym, by do komputera, z którym chcemy się skontaktować wysyłać jakiekolwiek pakiety (ich zawartość jest nieważna). Robimy tak ze względu na to, że rutery często odrzucają pakiety od nieznanego nadawcy. Jednak kiedy ruter zobaczy, że otrzymujemy pakiet z adresu, do którego my także już coś wysyłaliśmy, to adres ten uzna za zaufany i pakiety zaczną przechodzić. 
+
 Komunikacja między gospodarzem i jego gośćmi może być dowolnie zdefiniowana przez programistę gry.
 
 Odnotujmy jedynie, że w systuacji, gdy któraś ze stron odchodzi z gry, to informowany jest serwer, a nie klienci. Robimy tak dlatego, że w przypadku zerwania połącznia klient nie powiadomi innych o swoim odejściu. Ten obowiązek i tak spocznie na serwerze. Dlatego przyjmujemy, że o odejściu gracza zawsze informuje serwer, nawet gdy odbywa się ono poprzez wybranie odpowiedniej opcji w menu.
@@ -273,16 +284,13 @@ W przypadku, gdy połączenie z klientem zostanie przerwane serwer musi podjąć
 \end{itemize}
  Niezależnie od trybu w jakim znajdował się klient, należy go usunąć ze wszystkich list na jakich się znajduje i zakończyć wątek przeznaczony do jego obsługi.
 
-\section{Hierarchia klas}
-TODO!!!
-
 \section{Słownik}
 \begin{description}
  \item[Gra] - rodzaj zabawy towarzyskiej, u nas internetowej, odbywający się według określonych reguł, na przykład: szachy, chińczyk.
- \item[Rozgrywka] - jest to przebieg pewnej gry, na przykład: partia szachów.
- \item[Gospodarz, Host] - klient, na którego komputerze odbywa się logika rozgrywki.
+ \item[Partia] - jest to przebieg pewnej gry, na przykład: partia szachów.
+ \item[Gospodarz] - klient, na którego komputerze odbywa się logika rozgrywki.
  \item[Gość] - klient biorący udział w rozgrywce, niebędący gospodarzem.
- \item[Logika rozgrywki] - stan rozgrywki, wartości wszystkich obiektów związanych z rozgrywką.
+ \item[Logika gry] - stan partii, wartości wszystkich obiektów związanych z partią.
 \end{description}
 
 \end{document} 

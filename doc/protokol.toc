@@ -1,0 +1,5 @@
+\contentsline {section}{\numberline {1.}Opis protoko\IeC {\l }u}{3}
+\contentsline {section}{\numberline {2.}Lista mo\IeC {\.z}liwych komunikat\IeC {\'o}w}{3}
+\contentsline {subsection}{\numberline {2.1.}Komunikaty wysy\IeC {\l }ane przez klienta do serwera}{3}
+\contentsline {subsection}{\numberline {2.2.}Komunikaty wysy\IeC {\l }ane przez serwera do klienta}{3}
+\contentsline {subsection}{\numberline {2.3.}Komunikaty wysy\IeC {\l }ane prez klienta do klienta}{4}
