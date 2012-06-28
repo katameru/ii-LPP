@@ -34,16 +34,14 @@
 
 \section{Ogólny opis architektury}
 
-Wtomigraj jest platformą programistyczną, służącą tworzeniu aplikacji internetowych, które umożliwią skomunikowanie się dwóch lub więcej komputerów w Internecie, w celu odbycia wspólnej gry. Wtomigraj składa się z dwóch części. Pierwszą jest serwer, który pośredniczy w nawiązaniu połączenia między aplikacjami graczy. Drugą częścią jest biblioteka zawierająca klasę klienta. Pozwala ona zmniejszyć narzut programistyczny na wykorzystanie możliwości serwera poprzez dostarczenie odpowiednich klas i funkcji do komunikacji z serwerem. Programista gry nie musi przykładowo wnikać w szczegóły opracowanego przez nas protokołu, wystarczy wywoływać odpowiednie metody biblioteczne. 
-
 Każdy klient może zostać gospodarzem nowej gry lub przyłączyć się do nierozpoczętej gry (mówimy wtedy, że jest gościem). Kiedy do nierozpoczętej partii dołączy minimalna liczba wymaganych graczy (zależy ona od gry), to partia może zostać rozpoczęta. Serwer służy tylko jako pośrednik w nawiązaniu połączenia pomiędzy graczami zainteresowanymi odbyciem wspólnej partii, nie ma żadnego udziału w jej przebiegu. Wszyscy goście komunikują się wyłącznie z gospodarzem. Wszystkie obiekty związane z grą znajdują się w pamięci komputera gospodarza. Klient gospodarza wysyła gościom informacje o zmianach stanów tych obiektów, a klienci-goście wyświetlają je swoim użytkownikom na ekranach monitorów i przekazują gospodarzowi ich ruchy. Po zakończeniu gry wszyscy klienci ponownie komunikują się z serwerem, który może pośredniczyć w zainicjowaniu kolejnej partii. Schemat architektury przedestawiono na rysunku~\ref{fig:arch}.
 
-Końcowymi użytkownikami są internauci pragnący pograć z innymi ludźmi. Programista gry korzystający z platformy Wtomigraj powinien na wydzielonym serwerze uruchomić program serwera oraz udostępnić użytkownikom grę, na przykład w postaci aplikacji okienkowej w pakiecie jar lub jako aplet osadzony na stronie internetowej.
+Końcowymi użytkownikami są internauci pragnący pograć z innymi. Programista gry korzystający z platformy Wtomigraj powinien na wydzielonym serwerze uruchomić program serwera oraz udostępnić użytkownikom grę, na przykład w postaci aplikacji okienkowej w pakiecie jar lub jako aplet osadzony na stronie internetowej.
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.6]{rysunki/arch.png}
 \caption{Schemat komunikacji klientów i serwera}
+\includegraphics[scale=0.6]{rysunki/arch.png}
 \label{fig:arch}
 \end{figure}
 
@@ -67,30 +65,31 @@ Aplikacja prezentuje swojemu użytkownikowi rozgrywki, do których może się pr
 \paragraph{Tryb gospodarza.} W tym trybie klient staje się gospodarzem partii. Początkowo oczekuje aż dołączy odpowiednio wielu graczy. Użytkownicy, których klienci znajdują się w trybie menu, widzą tę partię na swoim panelu i mogą do niej dołączyć. W tym czasie gospodarz może ustawić parametry związane z grą, co przedstawia rysunek~\ref{fig:inicjacja}.
 
 
-Po pojawieniu się wymaganej liczby graczy partia może zostać rozpoczęta. Znika wówczas z listy dostępnych gier. Aplikacja gospodarza odpowiada za wykonywanie wszelkich obliczeń i operacji związanych z grą. Wszystkich gości informuje tylko o zmianach stanów istotnych obiektów, tak aby aplikacje gości mogły je należycie wyświetlić swoim użytkownikom. Goście przekazują swoje ruchy gospodarzowi, który uwzględnia je w logice gry. Ponadto aplikacja w trybie hosta wykonuje te same zadania, co aplikacja w trybie gościa, ponieważ jej użytkownik także jest graczem.
+Po pojawieniu się wymaganej liczby graczy partia może zostać rozpoczęta. Znika wówczas z listy dostępnych gier. Aplikacja gospodarza odpowiada za wykonywanie wszelkich obliczeń i operacji związanych z grą. Wszystkich gości informuje tylko o~zmianach stanów istotnych obiektów, tak aby aplikacje gości mogły je należycie wyświetlić swoim użytkownikom. Goście przekazują swoje ruchy gospodarzowi, który uwzględnia je w logice gry. Ponadto aplikacja w trybie hosta wykonuje te same zadania, co aplikacja w trybie gościa, ponieważ jej użytkownik także jest graczem.
 
 \paragraph{Tryb gościa.} W tym trybie aplikacja służy do wyświetlania stanu gry swojemu użytkownikowi oraz przekazywania jego ruchów gospodarzowi partii.
 
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.8]{rysunki/menu.png}
 \caption{Aplikacja w stanie menu}
+\includegraphics[scale=0.8]{rysunki/menu.png}
 \label{fig:menu}
 \end{figure}
 
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.8]{rysunki/inicjacja.png}
 \caption{Przykładowy panel gospodarza przed rozpoczęciem rozgrywki}
+\includegraphics[scale=0.8]{rysunki/inicjacja.png}
 \label{fig:inicjacja}
 \end{figure}
-
+\vspace{2cm}
 \section{Zadania elementów systemu}
 
 \paragraph{Serwer.} Służy skomunikowaniu aplikacji klientów. Może obsługiwać dowolnie wiele rodzajów gier.
-Serwer
+Serwer:
+
 \begin{itemize}
  \item przechowuje adresy klientów, ich pseudonimy, oraz odnośniki do partii w jakich się znajdują,
  \item rozsyła listę dostępnych partii pożądanej gry (aplikacja klienta wysyła informację do serwera jaka gra ją interesuje, bo serwer może jednocześnie służyć np. szachistom i brydżystom),
