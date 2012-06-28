@@ -13,7 +13,7 @@
 
 \newpage
 \section{Opis protokołu}
-Komunikacja pomiędzy klientem a serwerem odywa się przez wymianę pakietów UDP z wiadomościami zawartymi w polu danych. W warstwie aplikacji protokół ma formę pytanie-odpowiedź, co zapewnia odporność na błędy sieci związane ze stratą pakietów. Wiadomości przesyłane są w formacie JSON, co pozwala na wykorzystanie istniejących bibliotek do prostego kodowania i dekodowania informacji.
+Komunikacja pomiędzy klientem a serwerem Wtomigraja odywa się przez wymianę pakietów UDP z wiadomościami zawartymi w polu danych. W warstwie aplikacji protokół ma formę pytanie-odpowiedź, co zapewnia odporność na błędy sieci związane ze stratą pakietów. Wiadomości przesyłane są w formacie JSON, co pozwala na wykorzystanie istniejących bibliotek do prostego kodowania i dekodowania informacji.
 
 Każdy obiekt JSON zawiera pola:
 \begin{itemize}
@@ -31,8 +31,8 @@ Ponadto dla każdego typu komunikatu obiekt JSON może zawierać dodatkowe pola.
  \item[join] -- komunikat będący prośbą o przyłączenie do kanału. Zawiera pole \texttt{name}, oznaczające nazwę kanału do którego chce się przyłączyć klient.
  \item[exit] -- komunikat będący prośbą o wypisanie klienta z kanału rozmowy.
  \item[sendchannels] -- komunikat będący prośbą o przesłanie listy kanałów do których może dołączyć klient.
- \item[holepunch] -- komunikat żądający od serwera przekazania otwartego kanału komunikacji do użytkownika, którego identyfikator jest zawarty w treści komunikatu. \begin{large}TU COŚ TRZEBA ZMIENIĆ. \end{large}
- \item[emptyresponse] -- komunikat wysyłany w odpowiedzi na pytania, które \textit{de facto} są polecaniami i nie wymagają żadnej odpowiedzi, prócz potwierdzenia, że pakiet doszedł, np. \textbf{echorequest}, \textbf{channelcanceled}.
+ \item[holepunch] -- komunikat żądający od serwera przekazania otwartego kanału komunikacji do użytkownika, którego identyfikator jest zawarty w treści komunikatu.
+ \item[emptyresponse] -- komunikat wysyłany w odpowiedzi na pytania, które \textit{de facto} są polecaniami i~nie wymagają żadnej odpowiedzi, prócz potwierdzenia, że pakiet doszedł, np. \textbf{echorequest}, \textbf{channelcanceled}.
 \end{description}
 
 
@@ -43,20 +43,20 @@ Ponadto dla każdego typu komunikatu obiekt JSON może zawierać dodatkowe pola.
  \item[echorequest] -- komunikat żądający od klienta potwierdzenia swojej obecności.
  \item[channellist] -- odpowiedź na \textbf{sendchannels}. W polu \texttt{channels} zawarta jest lista nazw kanałów, do których może dołączyć klient.
  \item[channelaccepted] -- odpowiedź na \textbf{newchannel}. Komunikat ten oznacza, że serwer akceptuje założenie przez klienta nowego kanału rozmowy.
-  \item[channelrejected] -- odpowiedź na \textbf{newchannel}. Komunikat ten oznacza, że serwer odrzuca założenie przez klienta nowego kanału rozmowy. W treści komunikatu przesyłany jest numer błędu i jego opis.
+  \item[channelrejected] -- odpowiedź na \textbf{newchannel}. Komunikat ten oznacza, że serwer odrzuca założenie przez klienta nowego kanału rozmowy. W~treści komunikatu przesyłany jest numer błędu i jego opis.
  \item[joinaccepted] -- odpowiedź na \textbf{join}. Komunikat ten oznacza, że prośba klienta o dołączenie do pewnego kanału została zaakceptowana. W polu \texttt{name}, jako potwierdzenie, znajduje się nazwa kanału, do którego dołącza klient.
   \item[joinrejected] -- odpowiedź na \textbf{join}. Komunikat ten oznacza, że prośba klienta o dołączenie do pewnego kanału została odrzucona.Zawiera pola \texttt{errid} oraz \texttt{desc} oznaczające numer błędu oraz jego opis.
  \item[exitaccepted] -- odpowiedź na \textbf{exit}. Oznacza on, że klient został wypisany z kanału rozmowy. Ponadto w polu \texttt{channels} zawarta jest lista nazw kanałów, do których może dołączyć klient.
  \item[address] -- odpowiedź na \textbf{holepunch}. W treści komunikatu przesyłany jest identyfikator użytkownika wraz z jego adresem zewnętrznym i portem do komunikacji.
  \item[channelcanceled] -- komunikat informujący klienta, że kanał w którym się znajduje przestał istnieć.
   \item[userjoined] -- komunikat informujący klienta, że do kanału w którym się znajduje dołączył użytkownik. W treści komunikatu przesyłany jest identyfikator dołączającego użytkownika.
- \item[userleft] -- komunikat informujący klienta, że kanał w którym się znajduje opuścił użytkownik. W treści komunikatu przesyłany jest identyfikator odchodzącego użytkownika.
+ \item[userleft] -- komunikat informujący klienta, że kanał w którym się znajduje opuścił użytkownik. W~treści komunikatu przesyłany jest identyfikator odchodzącego użytkownika.
  \item[error] -- komunikat wysyłany gdy wystąpi bład inny niż te opisane wyżej. Zawiera pola \texttt{errid} oraz \texttt{desc} oznaczające numer błędu oraz jego opis.
 \end{description}
 
 \subsection{Komunikaty wysyłane prez klienta do klienta}
 \begin{description}
-\item[genericdata]  -- 
+\item[gamedata]  -- komunikat zawierający dowolne dane, służący wymianie informacji pomiędzy klientami, na przykład w celu synchronizacji stany gry.
 \end{description}
 
 
