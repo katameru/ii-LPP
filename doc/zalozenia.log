@@ -1,8 +1,8 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2011.12.12)  29 JUN 2012 01:16
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2011.12.12)  29 JUN 2012 00:42
 entering extended mode
  %&-line parsing enabled.
-**arch.tex
-(./arch.tex
+**zalozenia.tex
+(./zalozenia.tex
 LaTeX2e <2005/12/01>
 Babel <v3.8h> and hyphenation patterns for english, usenglishmax, dumylang, noh
 yphenation, arabic, basque, bulgarian, coptic, welsh, czech, slovak, german, ng
@@ -430,41 +430,24 @@ Package: color 2005/11/14 v1.0j Standard LaTeX Color (DPC)
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
 Package color Info: Driver file: pdftex.def on input line 130.
-)
-(/usr/share/texmf/tex/latex/placeins/placeins.sty
-Package: placeins 2005/04/18  v 2.2
-) (./titlepage.sty
-(/usr/share/texmf/tex/latex/caption/caption2.sty
-Package: caption2 2005/10/03 v2.1d Customising captions (AS)
+) (./titlepage.sty)
+(./zalozenia.aux)
+\openout1 = `zalozenia.aux'.
 
-
-Package caption2 Warning: THIS PACKAGE IS OBSOLETE, PLEASE USE caption INSTEAD 
-on input line 32.
-
-\captionmargin=\dimen119
-\captionwidth=\dimen120
-\captionindent=\dimen121
-Package caption2 Info: Running in caption2 v2.0 compatibility mode on input lin
-e 199.
-\captionlinewidth=\dimen122
-\realcaptionwidth=\dimen123
-)) (./arch.aux)
-\openout1 = `arch.aux'.
-
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT4/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OT4/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
 -------------------- Geometry parameters
 paper: a4paper
 landscape: --
@@ -507,7 +490,7 @@ driver: pdftex
  [1
 
 {/usr/share/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-(./arch.toc
+(./zalozenia.toc
 LaTeX Font Info:    Try loading font information for OML+plm on input line 2.
  (/usr/share/texmf/tex/latex/platex/omlplm.fd
 File: omlplm.fd 2000/10/09 v1.2 Font defs for fonts PL (MW)
@@ -539,7 +522,7 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 2.
 File: umsb.fd 2002/01/19 v2.2g AMS font definitions
 ))
 \tf@toc=\write3
-\openout3 = `arch.toc'.
+\openout3 = `zalozenia.toc'.
 
 
 
@@ -548,74 +531,35 @@ Package Fancyhdr Warning: \headheight is too small (12.0pt):
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
-[2] <rysunki/arch.png, id=11, 519.44063pt x 334.24875pt>
-File: rysunki/arch.png Graphic file (type png)
-
-<use rysunki/arch.png> [3]
-<rysunki/menu.png, id=15, 334.24875pt x 201.00093pt>
-File: rysunki/menu.png Graphic file (type png)
- <use rysunki/menu.png>
-<rysunki/inicjacja.png, id=16, 600.74437pt x 426.09187pt>
-File: rysunki/inicjacja.png Graphic file (type png)
-
-<use rysunki/inicjacja.png>
-Overfull \hbox (36.73296pt too wide) in paragraph at lines 84--85
- [][] 
- []
-
-[4 <./rysunki/arch.png>] [5 <./rysunki/menu.png> <./rysunki/inicjacja.png>]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 95.
-
-(/usr/share/texmf/tex/latex/base/omscmr.fd
+[2] [3]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 60.
+ (/usr/share/texmf/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 95.
- [6]
-LaTeX Font Info:    Try loading font information for OT4+cmtt on input line 136
-.
-
-(/usr/share/texmf/tex/latex/platex/ot4cmtt.fd
-File: ot4cmtt.fd 2000/10/09 v1.2 Font defs for fonts PL (MW)
-) [7] [8]
-Underfull \hbox (badness 10000) in paragraph at lines 211--212
-[]\OT4/cmr/m/n/12 Akceptacja do-ª¡-cze-nia do
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 60.
+ [4]
+Overfull \hbox (4.60805pt too wide) in paragraph at lines 73--74
+ \OT4/cmr/bx/n/12 Ko-mu-ni-ka-cja klient-klient.[] \OT4/cmr/m/n/12 Re-ali-zo-wa
+-ne jest na-wi¡-zy-wa-nie po-ª¡-cze-nia mi¦-dzy klien-
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 241--242
-[]\OT4/cmr/m/n/12 Utworzenie no-wej
- []
-
-
-Underfull \hbox (badness 2401) in paragraph at lines 245--246
-[]\OT4/cmr/m/n/12 przesªa¢ po-zo-sta-ªym klien-tom ko-mu-ni-kat
- []
-
-
-Overfull \hbox (8.70175pt too wide) in paragraph at lines 238--265
- [] 
- []
-
-[9] [10] [11] [12] (./arch.aux) ) 
+[5] [6] (./zalozenia.aux) ) 
 Here is how much of TeX's memory you used:
- 2709 strings out of 256216
- 32376 string characters out of 1917071
- 95394 words of memory out of 1500000
- 5930 multiletter control sequences out of 10000+200000
- 13466 words of font info for 41 fonts, out of 1200000 for 2000
+ 2483 strings out of 256216
+ 28986 string characters out of 1917071
+ 86822 words of memory out of 1500000
+ 5721 multiletter control sequences out of 10000+200000
+ 12631 words of font info for 39 fonts, out of 1200000 for 2000
  645 hyphenation exceptions out of 8191
- 29i,12n,43p,993b,358s stack positions out of 5000i,500n,6000p,200000b,15000s
-{/usr/share/texmf/fonts/enc/dvips/pl/plit.enc}
-{/usr/share/texmf/fonts/enc/dvips/pl/pltt.enc}{/usr/share/texmf/fonts/enc/dvips
-/pl/plrm.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb></usr/share/te
-xmf/fonts/type1/public/pl/plbx12.pfb></usr/share/texmf/fonts/type1/public/pl/pl
-r12.pfb></usr/share/texmf/fonts/type1/public/pl/plr17.pfb></usr/share/texmf/fon
-ts/type1/public/pl/plti12.pfb></usr/share/texmf/fonts/type1/public/pl/pltt12.pf
-b>
-Output written on arch.pdf (12 pages, 147782 bytes).
+ 27i,11n,43p,1128b,238s stack positions out of 5000i,500n,6000p,200000b,15000s
+{/usr/share/texmf/fonts/enc/dvips/pl/plrm.enc}</usr/
+share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/pub
+lic/pl/plbx12.pfb></usr/share/texmf/fonts/type1/public/pl/plr12.pfb></usr/share
+/texmf/fonts/type1/public/pl/plr17.pfb>
+Output written on zalozenia.pdf (6 pages, 50430 bytes).
 PDF statistics:
- 74 PDF objects out of 1000 (max. 8388607)
+ 38 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

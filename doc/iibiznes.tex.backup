@@ -22,7 +22,7 @@
 \newtitle{Gra II-Biznes}
 
 \section{Zasady gry}
-II-Biznes jest wieloosobową grą planszową, której zasady powstały na podstawie takich gier jak Monopoly czy Eurobiznes, jednak została ona dostosowana do codzienności studenta Instytutu Informatyki Uniwersytetu Wrocławskiego.
+II-Biznes jest wieloosobową grą planszową opartą na zasadach takich gier jak Monopoly czy Eurobiznes jednak została ona dostosowana do codzinności studenta Instytutu Informatyki Uniwersytetu Wrocławskiego.
 
 II-Biznes jest grą przeznaczoną dla 2-5 osób. Zadaniem gracza jest utrzymać się na studiach. Jak wiadomo elementem niezbędnym dla efektywnych studiów jest wysoka motywacja. Gracze zaczynają grę mając pewną ustaloną ilość motywacji (domyślnie 3000 jednostek). Na skutek działań podejmowanych w czasie gry motywacja gracza może rosnąć lub spadać. 
 
@@ -33,30 +33,11 @@ II-Biznes jest grą przeznaczoną dla 2-5 osób. Zadaniem gracza jest utrzymać 
  \item kursy -- są dwa takie pola. Kiedy jakiś gracz stanie na kursie przechodzi do nas od niego losowa ilość motywacji, od 20 do 120. Jeżeli zaliczyliśmy oba kursy ta wartość się podwaja.
  \item pola z szansą -- na tych polach czeka na nas niespodzienka, może jakieś zdarzenie zwiększy nasze motywacje, albo je obniży, może będziemy musieli cofnąć się o 3 pola, itp.
  \item Egzamin i kolokwium -- na tych polach zużywamy motywację na naukę.
- \item Start, Okienko, Ryjec\footnote{Ryjec -- sala znajdująca się w większości polskich akademików, w której (jak sama nazwa wskazuje) studenci oddają się nauce.} -- pola na których nic szczególnego się nie dzieje.
- \item Idziesz do ryjca -- jeżeli staniemy na tym polu cofamy się na pole Ryjec i omijają nas dwie następne tury.
+ \item Start, Okienko, Ryjec\footnote{Wydzielona sala występująca w większości polskich akademików, w której (jak sama nazwa wskazuje) studenci oddają się nauce.} -- pola na których nic szczególnego się nie dzieje.
+ \item Idziesz do ryjca -- jeżeli staniemy na tym polu cofamy się na pole Ryjec, i omijają nas dwie następne tury.
 \end{itemize}
 
-\paragraph{Przebieg gry.} Gracze na zmianę rzucają dwiema kostkami do gry. Jeśli wypadnie dublet (taka sama liczba oczek na obu kostkach) gracz rzuca ponownie. Jeżeli po raz drugi wypadnie dublet, gracz przechodzi do ryjca i omijają go dwie kolejne tury. W~przeciwnym razie sumujemy oczka (jeżeli rzucaliśmy dwa razy, to liczymy sumę z obydwu rzutów) i przesuwamy się do przodu o tyle pól ile wyniosła suma oczek. Wówczas zostaje podjęta pewna akcja, zależna od pola, co zostało opisane powyżej. Jeżeli gracz przechodzi przez Start to jego motywacja rośnie (domyślnie o 400 jednostek).
+\paragraph{Przebieg gry.} Gracze na zmianę rzucają dwiema kostkami do gry. Jeśli wypadnie dublet (taka sama liczba oczek na obu kostkach) gracz rzuca ponownie. Jeżeli po raz drugi wypadnie dublet, gracz przechodzi do ryjca i omijają go dwie kolejne tury. W przeciwnym razie sumujemy oczka (jeżeli rzucaliśmy dwa razy, to z obydwu rzutów) i przesuwamy się do przodu o tyle pól ile wyniosła suma oczek. Wówczas zostaje podjęta pewna akcja, zależna od pola, co zostało opisane powyżej. Jeżeli gracz przechodzi przez Start to jego motywacja rośnie (domyślnie o 400 jednostek).
 
-\section{Panel gry}
-Panel użytkownika gry II-Biznes przedstawiono na rysunku~1. Różowym kolorem zaznaczono ważne elementy panelu, które poniżej opisujemy.
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.75]{iibiznes.png}
-\caption{Panel gry II-Biznes.}
-\end{figure}
-
-\begin{enumerate}
- \item Rysunki pionków. Przedstawiają położenie graczy w danej chwili gry.
- \item Rysunek planszy.
- \item Okienko czata. Służy graczom do pisania wiadomości.
- \item Okienko dziennika. Pojawiają się tam informacje o przebiegu rozgrywki. 
- \item Przycisk kulania kostkami. Jest aktywny tylko dla tego gracza, który aktualnie ma ruch.
- \item Przycisk układania zadań domowych. Jest aktywny tylko dla tych graczy, którzy zaliczyli wszystkie tematy z jednego przedmiotu.
- \item Informacje o graczu. Można zobaczyć na nim pseudonim gracza, jego kolor, posiadaną motywację, pole, na który stoi i zaliczone tematy. 
-\end{enumerate}
-
-
+\section{Panel gry.}
 \end{document} 
