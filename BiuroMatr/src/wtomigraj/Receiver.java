@@ -16,6 +16,10 @@ import static wtomigraj.Utils.*;
  */
 public class Receiver
 {    
+    /**
+     * Creates receiver which will listen on given socket.
+     * @param ds Datagram socket on which this receiver will listen.
+     */
     public Receiver(DatagramSocket ds)
     {
         this.ds = ds;
@@ -39,6 +43,10 @@ public class Receiver
         listening.start();        
     }
     
+    /**
+     * Returns thread object which listens on socket.
+     * @return thread object which listens on socket.
+     */
     public Thread getListening()
     {
         return listening;
@@ -94,6 +102,10 @@ public class Receiver
         pcs.addPropertyChangeListener(pcl);
     }
 
+    /**
+     * Returns socket object on which this receiver listens.
+     * @return socket object on which this receiver listens.
+     */
     public DatagramSocket getDs()
     {
         return ds;

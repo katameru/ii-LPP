@@ -18,6 +18,13 @@ import org.json.JSONObject;
  */
 public class ReqSender implements PropertyChangeListener
 {
+    /**
+     * Creates ReqSender from given socket, receiver and address.
+     * @param ds DatagramSocket which will be used to send datagrams.
+     * @param receiver receiver which may receive a response. ReqSender will be
+     * informed when response arrives.
+     * @param addr Address to which this ReqSender will send packets.
+     */
     public ReqSender(DatagramSocket ds, Receiver receiver, AddrInfo addr)
     {
         this.ds = ds;
@@ -26,6 +33,10 @@ public class ReqSender implements PropertyChangeListener
         receiver.addPropertyChangeListener(this);
     }
     
+    /**
+     * Listens for changes of the receiver. 
+     * @param evt changed property of receiver. 
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -45,6 +56,9 @@ public class ReqSender implements PropertyChangeListener
     /**
      * Sends message. It blocks the thread until 
      * confirmation is received or method gives up.
+     * @param json JSON object which is going to be sent.
+     * @param rHandler Handler called after response arrives.
+     * @throws ConnectionException when delivery of packet was not confirmed.
      */
     public void send(JSONObject json, Handler rHandler) throws ConnectionException
     {
@@ -92,21 +106,42 @@ public class ReqSender implements PropertyChangeListener
         else rHandler.handle(response);
     }
 
+    /**
+     * Returns how many sending datagram should be repeated until send method
+     * gives up.
+     * @return how many sending datagram should be repeated until send method
+     * gives up.
+     */
     public int getRetrials()
     {
         return retrials;
     }
 
+    /**
+     * Send numbers of retrials.
+     * @param retrials number of retrials of sending packet which will be made
+     * unless we get confirmation of delivery.
+     */
     public void setRetrials(int retrials)
     {
         this.retrials = retrials;
     }
 
+    /**
+     * Returns number of miliseconds to be waited between following retrials
+     * of packet sending.
+     * @return number of miliseconds to be waited between following retrials
+     * of packet sending.
+     */
     public long getWaitTime()
     {
         return waitTime;
     }
 
+    /**
+     * Sets wait time between retrials.
+     * @param waitTime wait time between retrials.
+     */
     public void setWaitTime(long waitTime)
     {
         this.waitTime = waitTime;

@@ -13,7 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- *
+ * Class contains few static methods of general purpose so they are used by
+ * many other methods in diffrent classes.
  * @author grzes
  */
 public class Utils

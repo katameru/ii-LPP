@@ -227,7 +227,7 @@ public class Wtomigraj implements Runnable
         }).start();
     }
     
-    protected void initHandlers()
+    private void initHandlers()
     {            
         resHandler = new Handler()
         {
@@ -822,6 +822,9 @@ public class Wtomigraj implements Runnable
         return nick != null && !nick.isEmpty() && nick.length() < 32;
     }
        
+    /**
+     * Shuts down server.
+     */
     public void close()
     {
         receiver.close();
